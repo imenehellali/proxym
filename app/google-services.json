@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "693584570821",
+    "firebase_url": "https://proxym-9d1b7.firebaseio.com",
+    "project_id": "proxym-9d1b7",
+    "storage_bucket": "proxym-9d1b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:693584570821:android:3bacb9259eeb2b2a",
+        "android_client_info": {
+          "package_name": "com.example.hella.proxym"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "693584570821-8m13h3fnnel9p9ph8cdlqmg4ldtivvk8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hella.proxym",
+            "certificate_hash": "19a857c92c58b03655b9638d6f2feab7a1bbe842"
+          }
+        },
+        {
+          "client_id": "693584570821-h181letjaiksacf4mntkhm5ict6i3hn9.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "693584570821-h181letjaiksacf4mntkhm5ict6i3hn9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMbFO6Ad-xqa6Y91smfbAAmM-7GxpkB8E"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "693584570821-h181letjaiksacf4mntkhm5ict6i3hn9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

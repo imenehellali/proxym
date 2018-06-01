@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Welcomescreen extends AppCompatActivity {
 
@@ -18,6 +20,15 @@ public class Welcomescreen extends AppCompatActivity {
 
     private Button sign_in,sign_up;
     private Context _context = this;
+    private FirebaseAuth mAuth;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // todo Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        startActivity(new Intent(_context, Mainmenu.class));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +37,7 @@ public class Welcomescreen extends AppCompatActivity {
 
         sign_in=(Button) findViewById(R.id.sign_in);
         sign_up=(Button) findViewById(R.id.sign_up);
+        mAuth = FirebaseAuth.getInstance();
 
 
         sign_in.setOnClickListener(new View.OnClickListener() {

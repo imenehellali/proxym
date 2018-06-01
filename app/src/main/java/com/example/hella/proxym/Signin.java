@@ -43,6 +43,7 @@ public class Signin extends AppCompatActivity {
         });
     }
 
+    //TODO need to fetch every user own Data
     public void signin(String _email, String _password){
         mAuth.signInWithEmailAndPassword(_email, _password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -50,7 +51,7 @@ public class Signin extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
-                            startActivity(new Intent(_context , Collectscreen.class));
+                            startActivity(new Intent(_context , Mainmenu.class));
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Authentication failed.",

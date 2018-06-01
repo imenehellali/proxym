@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".Signin" />
-        <activity android:name=".Signup"></activity>
+        <activity android:name=".Signup" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -37,15 +37,20 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+
         <activity
-            android:name=".Fightscreen"
-            android:label="@+id/mapa" />
+            android:name=".Mainmenu"
+            android:label="@+id/map" />
+
         <activity
-            android:name=".Buildscreen"
-            android:label="@+id/mip"/>
+            android:name=".Avatarscreen"/>
         <activity
-            android:name=".Collectscreen"
-            android:label="@+id/mop" />
+            android:name=".Inventory"/>
+        <activity
+            android:name=".Social"/>
+        <activity
+            android:name=".Skill"/>
+
     </application>
 
 </manifest>

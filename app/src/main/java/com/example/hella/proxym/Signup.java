@@ -1,5 +1,7 @@
 package com.example.hella.proxym;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +20,8 @@ public class Signup extends AppCompatActivity {
     private EditText username, password, password_repeat;
     private Button sign_up_button;
     private FirebaseAuth mAuth;
+    final Context _context = this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +82,9 @@ public class Signup extends AppCompatActivity {
                         }
                     }
                 });
+        //directing to choose avatar screen
+        Intent _intent = new Intent(_context, Avatarscreen.class);
+        startActivity(_intent);
 
     }
 }

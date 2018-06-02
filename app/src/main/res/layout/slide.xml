@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/slide_linear_layout"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="fill"
-    android:background="@drawable/gradient_linear">
+    android:gravity="fill">
     <ImageView
         android:id="@+id/slide_image"
         android:layout_width="match_parent"
@@ -69,3 +69,4 @@
     </LinearLayout>
     </LinearLayout>
 </LinearLayout>
+

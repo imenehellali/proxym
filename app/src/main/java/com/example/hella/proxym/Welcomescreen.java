@@ -26,8 +26,7 @@ public class Welcomescreen extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         // todo Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        startActivity(new Intent(_context, Mainmenu.class));
+        //FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
     @Override

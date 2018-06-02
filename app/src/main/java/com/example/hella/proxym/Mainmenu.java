@@ -87,7 +87,7 @@ public class Mainmenu extends FragmentActivity implements OnMapReadyCallback,
         main_menu_tabs.addTab(main_menu_tabs.newTab(),2);
 
         main_menu_tabs.getTabAt(0).setIcon(R.drawable.inventory).setText("");
-        main_menu_tabs.getTabAt(1).setIcon(R.drawable.inventory).setText("");
+        main_menu_tabs.getTabAt(1).setIcon(R.drawable.skill).setText("");//todo change icon
         main_menu_tabs.getTabAt(2).setIcon(R.drawable.social).setText("");
 
         main_menu_tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

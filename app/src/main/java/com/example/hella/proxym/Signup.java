@@ -14,19 +14,21 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Signup extends AppCompatActivity {
 
     private EditText username, password, password_repeat;
     private Button sign_up_button;
     private FirebaseAuth mAuth;
-    final Context _context = this;
+    private Context _context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        _context = this;
         //initialize edit texts
         username=(EditText) findViewById(R.id.username);
         password=(EditText) findViewById(R.id.password);
@@ -50,7 +52,7 @@ public class Signup extends AppCompatActivity {
 
     private void registerUser(){
         String _Username=username.getText().toString().trim();
-        String _password=password.getText().toString().trim();
+        final String _password=password.getText().toString().trim();
         String _password_repeat=password_repeat.getText().toString().trim();
 
         if(_Username.isEmpty()){
@@ -78,13 +80,15 @@ public class Signup extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(),"User Signed up yey", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(),"User Sign up successful", Toast.LENGTH_SHORT).show();
+
+                            Intent _intent = new Intent(_context, Avatarscreen.class);
+                            startActivity(_intent);
                         }
+                        else
+                            Toast.makeText(getApplicationContext(),"Error occurred", Toast.LENGTH_SHORT).show();
                     }
                 });
-        //directing to choose avatar screen
-        Intent _intent = new Intent(_context, Avatarscreen.class);
-        startActivity(_intent);
 
     }
 }

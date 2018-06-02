@@ -27,6 +27,8 @@ public class SlideAdapter extends PagerAdapter {
         this.context =context;
     }
 
+
+
     @Override
     public int getCount() {
         return list_title.length;
@@ -36,6 +38,7 @@ public class SlideAdapter extends PagerAdapter {
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((LinearLayout) object);
     }
+
 
     @NonNull
     @Override

@@ -10,6 +10,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SlideAdapter extends PagerAdapter {
     private Context context;
     private LayoutInflater _inflater;
@@ -17,10 +20,11 @@ public class SlideAdapter extends PagerAdapter {
     //todo change avatars to owners -> list of images
     public int[] list_image={R.drawable.fighterman, R.drawable.fighterwoman, R.drawable.collectorman, R.drawable.collectorwoman, R.drawable.crafterman,R.drawable.craftwomantwo};
     //list of titles
-    public String[] list_title={"Fighter","Fighter","Collector","Collector", "Craftier","Craftier"};
+    public String[] list_title={"Fighter M","Fighter F","Collector M","Collector F", "Craftier M","Craftier F"};
 
-    /* list of deception will be added later R.layout.name
-    public int[] list_layout={R.id.fighter_stats,R.id.fighter_stats, R.id.collector_stats, R.id.collector_stats, R.id.craftier_stats, R.id.craftier_stats};*/
+    //public ArrayList<View> focus=new ArrayList<>();
+
+   // public ID[] list_tag=new ID[6];
 
 
     public SlideAdapter(Context context){
@@ -39,6 +43,11 @@ public class SlideAdapter extends PagerAdapter {
         container.removeView((LinearLayout) object);
     }
 
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+    }
 
     @NonNull
     @Override
@@ -77,6 +86,8 @@ public class SlideAdapter extends PagerAdapter {
             }
         }
         layout_description.getChildAt(_position).setVisibility(View.VISIBLE);
+        //setTag(view,position);
+       // focus.add(position,view);
         container.addView(view);
         return view;
     }
@@ -85,4 +96,17 @@ public class SlideAdapter extends PagerAdapter {
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return (view==(LinearLayout)object);
     }
+
+    //todo added this method though they would help but did not + the ID class + was an ID Array for views and indexes -> but didn'T resolve the problem either
+     /*private void setTag(View view, int position){
+        list_tag[position]=new ID(view,position);
+    }
+
+   public int getTag(View view){
+        for(int i=0; i<6; i++){
+            if(view.getId()==list_tag[i].getView().getId())
+                return list_tag[i].getId();
+        }
+        return -1;
+    }*/
 }

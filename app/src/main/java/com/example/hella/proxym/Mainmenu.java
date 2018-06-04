@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
+
 import android.graphics.Color;
 import android.location.Location;
 
@@ -28,6 +29,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -54,6 +56,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
+    //todo idee: vchange the mode_button (3 on each other : 1 visible 2,3 gone -> onClick 2 visible 1,3 gone .... and they instantiate a corresponding class constructor and can only call its functions and stuff  )
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +111,8 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
     }
 
     private void moveCamera(LatLng latLng, float ZOOM) {
-        Toast.makeText(this, "position " + latLng, Toast.LENGTH_SHORT).show();
 
+        Toast.makeText(this, "position " + latLng, Toast.LENGTH_SHORT).show();
         mMap.addMarker(new MarkerOptions().position(latLng).title("current location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
         mMap.addCircle(new CircleOptions().center(latLng).radius(1000f).strokeWidth(0f).fillColor(Color.argb(0.2f,0f, 142f,255f)));
 
@@ -128,6 +131,11 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
                             Toast.makeText(_content, "SUCCESS current location", Toast.LENGTH_LONG).show();
                             Location currentLocation = (Location) task.getResult();
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+
+                            LatLng spawn=new CollectorScreen().spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                            //todo icons -> BitmaoDescriptorFactory.fromResource... doesn'T work -> ERROR : image must be bitmap Oo
+                            mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(_content, "ERROR current location", Toast.LENGTH_LONG).show();
                         }

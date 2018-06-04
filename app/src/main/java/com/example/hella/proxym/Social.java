@@ -31,7 +31,7 @@ public class Social extends AppCompatActivity {
 
         social_tabs.getTabAt(0).setIcon(R.drawable.profile);
         social_tabs.getTabAt(1).setIcon(R.drawable.user);
-        social_tabs.getTabAt(2).setIcon(R.drawable.chat);
+        social_tabs.getTabAt(2).setIcon(R.drawable.chat_double);
         social_tabs.getTabAt(3).setIcon(R.drawable.quest);
 
     }

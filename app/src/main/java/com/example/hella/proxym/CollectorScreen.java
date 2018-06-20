@@ -1,6 +1,7 @@
 package com.example.hella.proxym;
 
 
+
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -14,31 +15,32 @@ public class CollectorScreen {
     int number=1;
     public ArrayList<Collectables> collected=new ArrayList<Collectables>();
 
+
     public CollectorScreen() {
 
     }
 
 
+    //works just fine
     public void add(Collectables element){
         int i=0;
         if(!collected.isEmpty()){
             for (Iterator<Collectables> it = collected.iterator(); it.hasNext(); ) {
                 Collectables collectables = it.next();
                 if(collectables.id.equals(element.id)){
-                    collected.get(i).number++;
-                    Log.d("ELEMENT", " "+i+" "+ element.id);
-
+                    element.number++;
+                    Log.d("CollectorScreen", " "+i+" "+ element.id+"\n"+element.number);
                     return;
                 }//found it in array and added it -> so quit function
                 i++;
             }
             collected.add(i, element);
-            Log.d("ELEMENT", " "+i+" "+ element.id);
+            Log.d("CollectorScreen", " "+i+" "+ element.id);
             return;
         }// didn't find it in array so add new one
         else{
             collected.add(i, element);
-            Log.d("ELEMENT", " "+i+" "+ element.id);
+            Log.d("CollectorScreen", " "+i+" "+ element.id);
             return;
         }//first element
 

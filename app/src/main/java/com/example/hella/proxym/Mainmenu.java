@@ -3,7 +3,6 @@ package com.example.hella.proxym;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
@@ -11,43 +10,32 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 
-import android.media.Image;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AlphabetIndexer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.hella.proxym.Util.HttpGet;
-import com.example.hella.proxym.Util.HttpPost;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import com.google.android.gms.dynamic.IObjectWrapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -56,18 +44,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.Dictionary;
-import java.util.concurrent.ExecutionException;
-
-
-public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
+public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
+    //ToDo tried parcelabel had some problems with the constructor -> delete
+    //ToDo problem new instance each screen -> table empty
 
     private TabLayout main_menu_tabs;
-    private Context _content = this;
+    private Context _content;
     private ImageButton mode_button;
     private int counter;
     private FirebaseAuth mAuth;
@@ -76,9 +59,10 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
 
     public GoogleMap mMap;
     public Location currentLocation;
-    public CollectorScreen collectorScreen = new CollectorScreen();
-    BuilderScreen builderScreen = new BuilderScreen();
-    FighterScreen fighterScreen = new FighterScreen();
+    public  static CollectorScreen collectorScreen;
+    BuilderScreen builderScreen;
+    FighterScreen fighterScreen;
+
 
 
     private static final String TAG = "Mainmenu";
@@ -97,6 +81,10 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
         super.onStart();
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
+        _content = this;
+        collectorScreen = new CollectorScreen();
+        builderScreen = new BuilderScreen();
+        fighterScreen = new FighterScreen();
     }
 
     @Override
@@ -123,7 +111,8 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0: {
-                        startActivity(new Intent(_content, Inventory.class));
+                        startActivity(new Intent(_content,Inventory.class));
+
                         break;
                     }
                     case 1: {
@@ -325,28 +314,6 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
                                 }
                             });
 
-                            HttpGet getter=new HttpGet();
-                            getter.execute("position",""+FirebaseAuth.getInstance().getCurrentUser().getUid(),""+currentLocation.getLongitude(),""+currentLocation.getLatitude(), "update");
-                            try{
-                                String result=getter.get();
-                                if(!result.equals("{}")){
-                                    JSONObject json=new JSONObject(result);
-                                    JSONArray jsonLoc=json.getJSONArray("loactions");
-                                    for(int i=0; i<jsonLoc.length(); i++){
-                                        JSONObject jsonLocation=jsonLoc.getJSONObject(i);
-                                        String UserName=jsonLocation.getString("user");
-
-                                    }
-                                }
-
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            } catch (ExecutionException e) {
-                                e.printStackTrace();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
                         } else {
                             Toast.makeText(_content, "ERROR current location", Toast.LENGTH_LONG).show();
                         }
@@ -424,6 +391,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
             }
         }
     }
+
 
 }
 

@@ -7,11 +7,10 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the 'MyLocation' functionality. 
     -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -20,17 +19,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <service
-            android:name=".MyFirebaseInstanceIDService">
+        <service android:name=".MyFirebaseInstanceIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".Util.MyFirebaseMessagingService">
+        <service android:name=".Util.MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
@@ -58,22 +54,15 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-
         <activity
             android:name=".Mainmenu"
             android:label="@+id/map" />
-
-        <activity
-            android:name=".Avatarscreen"/>
-        <activity
-            android:name=".Inventory"/>
-        <activity
-            android:name=".Social"/>
-        <activity
-            android:name=".Skill"/>
-        <activity
-            android:name=".CollectorScreen"/>
-
+        <activity android:name=".Avatarscreen" />
+        <activity android:name=".Inventory" />
+        <activity android:name=".Social" />
+        <activity android:name=".Skill" />
+        <activity android:name=".CollectorScreen" />
+        <activity android:name=".ForgotPassWord"></activity>
     </application>
 
 </manifest>

@@ -8,20 +8,28 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.hella.proxym.Util.UserProfile;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 
 public class Signup extends AppCompatActivity {
 
     private EditText username, password, password_repeat;
+    private ImageView profile_pic;
     private Button sign_up_button;
     private FirebaseAuth mAuth;
     private Context _context;
+    String _Username;String _password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +41,7 @@ public class Signup extends AppCompatActivity {
         username=(EditText) findViewById(R.id.username);
         password=(EditText) findViewById(R.id.password);
         password_repeat=(EditText) findViewById(R.id.password_repeat);
+        profile_pic=(ImageView) findViewById(R.id.profile_pic);
 
         //initialize firebase
         mAuth=FirebaseAuth.getInstance();
@@ -51,8 +60,8 @@ public class Signup extends AppCompatActivity {
 
 
     private void registerUser(){
-        String _Username=username.getText().toString().trim();
-        final String _password=password.getText().toString().trim();
+        _Username=username.getText().toString().trim();
+        _password=password.getText().toString().trim();
         String _password_repeat=password_repeat.getText().toString().trim();
 
         if(_Username.isEmpty()){
@@ -81,7 +90,9 @@ public class Signup extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(getApplicationContext(),"User Sign up successful", Toast.LENGTH_SHORT).show();
-
+                            sendUserData();
+                            Toast.makeText(getApplicationContext(),"Upload successful", Toast.LENGTH_SHORT).show();
+                            finish();
                             Intent _intent = new Intent(_context, Avatarscreen.class);
                             startActivity(_intent);
                         }
@@ -90,5 +101,13 @@ public class Signup extends AppCompatActivity {
                     }
                 });
 
+    }
+    private void sendUserData(){
+        FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
+        DatabaseReference mRef= firebaseDatabase.getReference(mAuth.getUid());
+
+        //First Step profile with email password
+        UserProfile userProfile=new UserProfile(_Username, _password);
+        mRef.setValue(userProfile);
     }
 }

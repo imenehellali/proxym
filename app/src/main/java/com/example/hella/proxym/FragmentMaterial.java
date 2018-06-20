@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 
 public class FragmentMaterial extends Fragment{
     private View _view;@Nullable
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
         _view=inflater.inflate(R.layout.material_fragment,container,false);

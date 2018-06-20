@@ -1,15 +1,21 @@
 package com.example.hella.proxym;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Inventory extends AppCompatActivity {
@@ -17,29 +23,30 @@ public class Inventory extends AppCompatActivity {
 
     private TabLayout inventory_tabs;
     private ViewPager inventory_extended;
-    private CollectorScreen collectorScreen;
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
 
-    private LinearLayout layout_material_hori,layout_material;
-    private ImageView material_image;
-    private TextView material_number, material_description;
+    ArrayList<Collectables> collectable_array;
 
-    //toDo constructor does not work -> ERROR
-    public Inventory(CollectorScreen collectorScreen) {
-        this.collectorScreen=collectorScreen;
-    }
+    private LinearLayout layout_animal_resource,layout_iron, layout_leaf,layout_bomb;
+    private TextView bomb_number,leaf_number,iron_number,animal_resource_number ;
+
+
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.inventory);
 
+        mAuth=FirebaseAuth.getInstance();
+        user=mAuth.getCurrentUser();
 
         inventory_tabs = (TabLayout) findViewById(R.id.inventory_tabs);
         inventory_extended = (ViewPager) findViewById(R.id.inventory_extended);
 
         ViewPagerAdapter _adapter = new ViewPagerAdapter(getSupportFragmentManager());
+
 
         _adapter.AddFragment(new FragmentEquipment(), "Equipment");
         _adapter.AddFragment(new FragmentMaterial(), "Material");
@@ -54,31 +61,58 @@ public class Inventory extends AppCompatActivity {
         inventory_tabs.getTabAt(2).setIcon(R.drawable.crafting);
         inventory_tabs.getTabAt(3).setIcon(R.drawable.building);
 
-        layout_material=(LinearLayout) findViewById(R.id.layout_material);
-        layout_material_hori=(LinearLayout) findViewById(R.id.layout_material_hori);
-        material_image=(ImageView) findViewById(R.id.material_image);
-        material_number=(TextView) findViewById(R.id.material_number);
-        material_description=(TextView) findViewById(R.id.material_description);
+        layout_animal_resource=(LinearLayout) findViewById(R.id.layout_animal_resource);
+        layout_iron=(LinearLayout) findViewById(R.id.layout_iron);
+        layout_leaf=(LinearLayout) findViewById(R.id.layout_leaf);
+        layout_bomb=(LinearLayout) findViewById(R.id.layout_bomb);
 
-        //ToDo it works but i think because of the new doesn't deliver
-        for (Iterator<Collectables> it = collectorScreen.collected.iterator(); it.hasNext(); ) {
-            Collectables collectables = it.next();
+        bomb_number=(TextView) findViewById(R.id.bomb_number);
+        leaf_number=(TextView) findViewById(R.id.leaf_number);
+        iron_number=(TextView) findViewById(R.id.iron_number);
+        animal_resource_number=(TextView) findViewById(R.id.animal_resource_number);
 
-            material_image.setImageResource(collectables.image);
-            material_number.setText(""+collectables.number);
-            material_description.setText(""+collectables.id);
-/*
-            layout_material_hori.addView(material_image,0);
-            layout_material_hori.addView(material_number,1);
-            layout_material_hori.addView(material_description,2);
-*/
-            LinearLayout copy=new LinearLayout(this);
-            copy.setLayoutParams(layout_material_hori.getLayoutParams());
-            copy.addView(material_image,1);
-            copy.addView(material_number,2);
-            copy.addView(material_description,3);
+        collectable_array= Mainmenu.collectorScreen.collected;
 
-            layout_material.addView(copy);
+
+        //ToDo save the collectable in database for each user than extract from it
+        if (!collectable_array.isEmpty()) {
+            for (Iterator<Collectables> it = collectable_array.iterator(); it.hasNext(); ) {
+                Collectables collectables = it.next();
+                switch (collectables.id){
+                    case "Bomb":{
+                        layout_bomb.setVisibility(View.VISIBLE);
+                        bomb_number.setText(""+collectables.number);
+                        Toast.makeText(this,"added "+collectables.number+ " "+collectables.id+" \n"+layout_bomb.getVisibility(), Toast.LENGTH_SHORT).show();
+                    }
+                    case "Iron":{
+                        layout_iron.setVisibility(View.VISIBLE);
+                        iron_number.setText(""+collectables.number);
+                    }
+                    case "Leaf":{
+                        layout_leaf.setVisibility(View.VISIBLE);
+                        leaf_number.setText(""+collectables.number);
+                    }
+                    case "Animal Resource":{
+                        layout_animal_resource.setVisibility(View.VISIBLE);
+                        animal_resource_number.setText(""+collectables.number);
+                    }
+                }
+            }
+        }else{
+            //ToDo ERROR : null object cannot access the frgmens from here
+            try {
+                layout_bomb.setVisibility(View.VISIBLE);
+                bomb_number.setText("0");
+                layout_iron.setVisibility(View.VISIBLE);
+                iron_number.setText("0");
+                layout_leaf.setVisibility(View.VISIBLE);
+                leaf_number.setText("0");
+                layout_animal_resource.setVisibility(View.VISIBLE);
+                animal_resource_number.setText("0");
+            } catch (Exception e) {
+                Toast.makeText(Inventory.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 }

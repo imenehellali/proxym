@@ -1,5 +1,7 @@
 package com.example.hella.proxym;
 
+
+
 public class Collectables{
     String id;
     int image;

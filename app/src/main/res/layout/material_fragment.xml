@@ -9,28 +9,98 @@
     android:id="@+id/layout_material">
 
     <LinearLayout
-        android:id="@+id/layout_material_hori"
+        android:id="@+id/layout_animal_resource"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:orientation="horizontal"
         android:layout_marginBottom="20dp"
-        android:weightSum="5">
+        android:weightSum="5"
+        android:visibility="gone">
         <ImageView
-            android:id="@+id/material_image"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/animal"/>
+        <TextView
+            android:id="@+id/animal_resource_number"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"/>
         <TextView
-            android:id="@+id/material_number"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
-        <TextView
-            android:id="@+id/material_description"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="3"/>
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_iron"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        android:weightSum="5"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/iron"/>
+        <TextView
+            android:id="@+id/iron_number"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="3"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_leaf"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        android:weightSum="5"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/leaf"/>
+        <TextView
+            android:id="@+id/leaf_number"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="3"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layout_bomb"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        android:weightSum="5"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:src="@drawable/bomb"/>
+        <TextView
+            android:id="@+id/bomb_number"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="3"/>
+    </LinearLayout>
+
 
 
 

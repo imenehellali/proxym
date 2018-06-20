@@ -1,16 +1,19 @@
 package com.example.hella.proxym;
 
+import android.app.usage.UsageEvents;
 import android.content.Context;
 import android.content.Intent;
 import android.gesture.Gesture;
 import android.net.Uri;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.DragEvent;
 import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -28,6 +31,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -47,6 +51,7 @@ public class Avatarscreen extends AppCompatActivity {
     StorageReference mStorageRef;
     int currentID;
     int i;
+    View v_temp;
     ID temp;
 
 
@@ -61,45 +66,36 @@ public class Avatarscreen extends AppCompatActivity {
         view_pager=(ViewPager) findViewById(R.id.view_pager);
         _adapter=new SlideAdapter(this);
         view_pager.setAdapter(_adapter);
+
         i=0;
+        //UserName handling
+        _username=(EditText) findViewById(R.id.username_define);
 
 
-
-        //todo working but faulty need to change the onScroll to something more appropriate -> untill then get used to it
-        // todo-> problem need to try real phone to be sure if that is the problem : range of scrollX and OldScroll int presents same as dp ?
+//ToDo still not working counter keeps on incrementing on its own
         view_pager.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                try {
-                    if(oldScrollX<scrollX && Math.abs(oldScrollX-scrollX)>250){
+
+
+                if(scrollX > oldScrollX && (Math.abs(scrollX-oldScrollX)>0.5)){
+                        v_temp=v;
                         i++;
-                        temp=setUpID(v,i);
-                        Toast.makeText(getApplicationContext(), "id i+1 "+i+"  viewID "+temp.getView().getId(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(_context, ""+i, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if(scrollX < oldScrollX && (Math.abs(scrollX-oldScrollX)>0.5)){
+                        v_temp=v;
+                        i--;
+                        Toast.makeText(_context, ""+i, Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    else if(oldScrollX>scrollX && Math.abs(oldScrollX-scrollX)>250){
-                        i--;
-                        temp=setUpID(v,i);
-                        Toast.makeText(getApplicationContext(), "id i-1 "+i+"  viewID "+temp.getView().getId(),Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                    else{
-                        temp=setUpID(v,i);
-                        Toast.makeText(getApplicationContext(), "id same "+i+"  viewID "+temp.getView().getId(),Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(),Toast.LENGTH_LONG).show();
-                }
+                return;
             }
         });
+        temp=setUpID(view_pager.getFocusedChild(),i);
 
-
-
-
-        //UserName handling
-        _username=(EditText) findViewById(R.id.username_define);
 
 
         //Validate Button handling
@@ -107,43 +103,37 @@ public class Avatarscreen extends AppCompatActivity {
         validate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 currentID= temp.getId();
                 switch (currentID) {
                     case 0: {
                         UserAvatarString =getURLForResource(R.drawable.fighterman);
-                        Toast.makeText(getApplicationContext(), "fighterman saved in int UserAvatar",Toast.LENGTH_SHORT).show();
                         break;
                     }
                     case 1: {
                         UserAvatarString =getURLForResource(R.drawable.fighterwoman);
-                        Toast.makeText(getApplicationContext(), "fighterWomansaved in int UserAvatar",Toast.LENGTH_SHORT).show();
                         break;
                     }
                     case 2: {
                         UserAvatarString =getURLForResource(R.drawable.collectorman);
-                        Toast.makeText(getApplicationContext(), "Collectorrman saved in int UserAvatar",Toast.LENGTH_SHORT).show();
                         break;
                     }
                     case 3: {
                         UserAvatarString =getURLForResource(R.drawable.collectorwoman);
-                        Toast.makeText(getApplicationContext(), "CollectorWoman saved in int UserAvatar",Toast.LENGTH_SHORT).show();
                         break;
                     }
                     case 4: {
                         UserAvatarString =getURLForResource(R.drawable.crafterman);
-                        Toast.makeText(getApplicationContext(), "CraftierMan saved in int UserAvatar",Toast.LENGTH_SHORT).show();
                         break;
                     }
                     case 5: {
                         UserAvatarString =getURLForResource(R.drawable.craftwomantwo);
-                        Toast.makeText(getApplicationContext(), "CraftierWoman saved in int UserAvatar",Toast.LENGTH_SHORT).show();
                         break;
                     }
                 }
                 UserAvatar=Uri.parse(UserAvatarString);
                 uploadAvatarToFirebase();
                 saveUserInformation();
+                finish();
                 startActivity(new Intent(_context, Mainmenu.class));
             }
         });

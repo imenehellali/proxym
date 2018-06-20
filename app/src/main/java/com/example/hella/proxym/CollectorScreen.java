@@ -1,41 +1,58 @@
 package com.example.hella.proxym;
 
 
-import android.view.View;
-import android.widget.ImageButton;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 
 
 public class CollectorScreen {
-    private ImageButton mode_button;
+
+    int number=1;
+    public ArrayList<Collectables> collected=new ArrayList<Collectables>();
 
     public CollectorScreen() {
+
     }
 
+
+    public void add(Collectables element){
+        int i=0;
+        if(!collected.isEmpty()){
+            for (Iterator<Collectables> it = collected.iterator(); it.hasNext(); ) {
+                Collectables collectables = it.next();
+                if(collectables.id.equals(element.id)){
+                    collected.get(i).number++;
+                    Log.d("ELEMENT", " "+i+" "+ element.id);
+
+                    return;
+                }//found it in array and added it -> so quit function
+                i++;
+            }
+            collected.add(i, element);
+            Log.d("ELEMENT", " "+i+" "+ element.id);
+            return;
+        }// didn't find it in array so add new one
+        else{
+            collected.add(i, element);
+            Log.d("ELEMENT", " "+i+" "+ element.id);
+            return;
+        }//first element
+
+    }
+
+
     public LatLng spawn(LatLng currentLocation) {
-        float Min=0.001f;
-        float Max=0.03f;
+        float Min=-0.02f;
+        float Max=0.02f;
         float longitude= (float) (currentLocation.longitude+(Min+(Math.random()*(Max-Min))));
         float latitude= (float) (currentLocation.latitude+(Min+(Math.random()*(Max-Min))));
         LatLng _spawn=new LatLng(latitude,longitude);
         return _spawn;
     }
 
-    //todo finish the change icon + change class to work on + add same thing in MainMenu
-   /* public void changeModeButton(final ImageButton imageButton){
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch(R.id.){
-                    case R.drawable.collectmode:{
-                        imageButton.setImageResource(R.drawable.buildmode);
-                    }
-                }
 
-            }
-        });
-    }
-*/
 }

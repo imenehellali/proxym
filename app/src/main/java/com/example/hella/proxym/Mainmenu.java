@@ -3,6 +3,7 @@ package com.example.hella.proxym;
 import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
@@ -10,19 +11,31 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.AlphabetIndexer;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.hella.proxym.Util.HttpGet;
+import com.example.hella.proxym.Util.HttpPost;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import com.google.android.gms.dynamic.IObjectWrapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,20 +44,43 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.GroundOverlay;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Dictionary;
+import java.util.concurrent.ExecutionException;
 
 
 public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
 
     private TabLayout main_menu_tabs;
     private Context _content = this;
+    private ImageButton mode_button;
+    private int counter;
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
 
 
-    private GoogleMap mMap;
+    public GoogleMap mMap;
+    public Location currentLocation;
+    public CollectorScreen collectorScreen = new CollectorScreen();
+    BuilderScreen builderScreen = new BuilderScreen();
+    FighterScreen fighterScreen = new FighterScreen();
+
+
     private static final String TAG = "Mainmenu";
     private static final int ERROR_DIALOG_REQUEST = 9001;
     private static String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
@@ -56,7 +92,12 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
-    //todo idee: vchange the mode_button (3 on each other : 1 visible 2,3 gone -> onClick 2 visible 1,3 gone .... and they instantiate a corresponding class constructor and can only call its functions and stuff  )
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +108,6 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
         if (isServiceOK())
             getLocationPermission();
 
-        //initialize
         main_menu_tabs = (TabLayout) findViewById(R.id.main_menu_tabs);
 
         main_menu_tabs.addTab(main_menu_tabs.newTab(), 0);
@@ -75,7 +115,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
         main_menu_tabs.addTab(main_menu_tabs.newTab(), 2);
 
         main_menu_tabs.getTabAt(0).setIcon(R.drawable.inventory).setText("");
-        main_menu_tabs.getTabAt(1).setIcon(R.drawable.skill).setText("");//todo change icon
+        main_menu_tabs.getTabAt(1).setIcon(R.drawable.skill).setText("");
         main_menu_tabs.getTabAt(2).setIcon(R.drawable.social).setText("");
 
         main_menu_tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -108,7 +148,114 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
+
+
+        //initialize
+        counter=1;
+        mode_button=(ImageButton) findViewById(R.id.mode_button);
+        mode_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (counter%3){
+                    case 1:{
+                        mode_button.setImageResource(R.drawable.fightmode);
+                        mode_button.setScaleType(ImageView.ScaleType.CENTER);
+                        mode_button.setBackground(getDrawable(R.drawable.button_shape_round_one));
+                        counter++;
+
+
+                        break;}
+                    case 2 :{
+                        mode_button.setImageResource(R.drawable.buildmode);
+                        mode_button.setScaleType(ImageView.ScaleType.CENTER);
+                        mode_button.setBackground(getDrawable(R.drawable.button_shape_round_one));
+                        counter++;
+                        //ToDo buildscreen Grid -> works but can't see it tried All transparancy :/
+                        final GroundOverlayOptions groundOverlayOptions=new GroundOverlayOptions().
+                                image(BitmapDescriptorFactory.fromResource(R.drawable.grid)).
+                                position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 100f)
+                                .visible(true).clickable(true).transparency(1f);
+
+                        mMap.addGroundOverlay(groundOverlayOptions).setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+
+                        mMap.setOnGroundOverlayClickListener(new GoogleMap.OnGroundOverlayClickListener() {
+                            @Override
+                            public void onGroundOverlayClick(GroundOverlay groundOverlay) {
+                                //ToDo alwys gives 0.5 / 0.5 middle of screen
+                                float HORIZONTAL= groundOverlayOptions.getAnchorU();
+                                float VERTICAL = groundOverlayOptions.getAnchorV();
+
+                                Toast.makeText(_content, "grid local " + HORIZONTAL+"\n"+VERTICAL, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(_content, "grid map "+ groundOverlay.getPosition().latitude + "\n"+groundOverlay.getPosition().longitude, Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+
+
+                        break;}
+                    case 0:{
+                        mode_button.setImageResource(R.drawable.collectmode);
+                        mode_button.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                        mode_button.setBackground(getDrawable(R.drawable.button_shape_round));
+                        counter++;
+
+
+                        LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                        mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
+                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                        LatLng spawn_1=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                        mMap.addMarker(new MarkerOptions().position(spawn_1).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
+                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                        LatLng spawn_2=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                        mMap.addMarker(new MarkerOptions().position(spawn_2).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
+                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                        LatLng spawn_3=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                        mMap.addMarker(new MarkerOptions().position(spawn_3).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
+                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                            @Override
+                            public boolean onMarkerClick(Marker marker) {
+                                switch (marker.getTitle()){
+                                    case "Bomb":{
+                                        collectorScreen.add(new Collectables("Bomb", R.drawable.bomb));
+                                        marker.remove();
+                                        break;
+                                    }
+                                    case "Leaf":{
+                                        collectorScreen.add(new Collectables("Leaf", R.drawable.leaf));
+                                        marker.remove();
+                                        break;
+                                    }
+                                    case "Animal Resource":{
+                                        collectorScreen.add(new Collectables("Animal Resource", R.drawable.animal));
+                                        marker.remove();
+                                        break;
+                                    }
+                                    case "Iron":{
+                                        collectorScreen.add(new Collectables("Iron", R.drawable.iron));
+                                        marker.remove();
+                                        break;
+                                    }
+                                }
+                                return false;
+                            }
+                        });
+                        break;}
+                }
+
+
+            }
+        });
+
     }
+
+
+
+
 
     private void moveCamera(LatLng latLng, float ZOOM) {
 
@@ -123,19 +270,83 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         try {
             if (_permissionGranted) {
-                Task location = fusedLocationProviderClient.getLastLocation();
+                final Task location = fusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
                             Toast.makeText(_content, "SUCCESS current location", Toast.LENGTH_LONG).show();
-                            Location currentLocation = (Location) task.getResult();
+                            currentLocation = (Location) task.getResult();
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
 
-                            LatLng spawn=new CollectorScreen().spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                            //todo icons -> BitmaoDescriptorFactory.fromResource... doesn'T work -> ERROR : image must be bitmap Oo
-                            mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                            LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                            //icons has to be png not xml
+                            mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
                             Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                            LatLng spawn_1=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                            mMap.addMarker(new MarkerOptions().position(spawn_1).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
+                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                            LatLng spawn_2=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                            mMap.addMarker(new MarkerOptions().position(spawn_2).title("Animal Resource").icon(BitmapDescriptorFactory.fromResource(R.drawable.animal)));
+                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                            LatLng spawn_3=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                            mMap.addMarker(new MarkerOptions().position(spawn_3).title("Iron").icon(BitmapDescriptorFactory.fromResource(R.drawable.iron)));
+                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
+
+                            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                                @Override
+                                public boolean onMarkerClick(Marker marker) {
+                                    switch (marker.getTitle()){
+                                        case "Bomb":{
+                                            collectorScreen.add(new Collectables("Bomb", R.drawable.bomb));
+                                            marker.remove();
+                                            break;
+                                        }
+                                        case "Leaf":{
+                                            collectorScreen.add(new Collectables("Leaf", R.drawable.leaf));
+                                            marker.remove();
+                                            break;
+                                        }
+                                        case "Animal Resource":{
+                                            collectorScreen.add(new Collectables("Animal Resource", R.drawable.animal));
+                                            marker.remove();
+                                            break;
+                                        }
+                                        case "Iron":{
+                                            collectorScreen.add(new Collectables("Iron", R.drawable.iron));
+                                            marker.remove();
+                                            break;
+                                        }
+                                    }
+                                    return false;
+                                }
+                            });
+
+                            HttpGet getter=new HttpGet();
+                            getter.execute("position",""+FirebaseAuth.getInstance().getCurrentUser().getUid(),""+currentLocation.getLongitude(),""+currentLocation.getLatitude(), "update");
+                            try{
+                                String result=getter.get();
+                                if(!result.equals("{}")){
+                                    JSONObject json=new JSONObject(result);
+                                    JSONArray jsonLoc=json.getJSONArray("loactions");
+                                    for(int i=0; i<jsonLoc.length(); i++){
+                                        JSONObject jsonLocation=jsonLoc.getJSONObject(i);
+                                        String UserName=jsonLocation.getString("user");
+
+                                    }
+                                }
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (ExecutionException e) {
+                                e.printStackTrace();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
                         } else {
                             Toast.makeText(_content, "ERROR current location", Toast.LENGTH_LONG).show();
                         }

@@ -61,8 +61,8 @@
         <activity android:name=".Inventory" />
         <activity android:name=".Social" />
         <activity android:name=".Skill" />
-        <activity android:name=".CollectorScreen" />
-        <activity android:name=".ForgotPassWord"></activity>
+        <activity android:name=".ForgotPassWord">
+        </activity>
     </application>
 
 </manifest>

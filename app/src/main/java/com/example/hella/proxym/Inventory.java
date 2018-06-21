@@ -4,9 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,44 +21,24 @@ public class Inventory extends AppCompatActivity {
 
 
     private TabLayout inventory_tabs;
-    private ViewPager inventory_extended;
-    private FirebaseAuth mAuth;
-    private FirebaseUser user;
-
-    ArrayList<Collectables> collectable_array;
-
+    private LinearLayout fragmentEquipment, fragmentCrafting, fragmentBuilding, layout_material;
     private LinearLayout layout_animal_resource,layout_iron, layout_leaf,layout_bomb;
     private TextView bomb_number,leaf_number,iron_number,animal_resource_number ;
 
+    private ArrayList<Collectables> collectable_array=new ArrayList<Collectables>();
 
+
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
 
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.inventory);
 
         mAuth=FirebaseAuth.getInstance();
         user=mAuth.getCurrentUser();
-
-        inventory_tabs = (TabLayout) findViewById(R.id.inventory_tabs);
-        inventory_extended = (ViewPager) findViewById(R.id.inventory_extended);
-
-        ViewPagerAdapter _adapter = new ViewPagerAdapter(getSupportFragmentManager());
-
-
-        _adapter.AddFragment(new FragmentEquipment(), "Equipment");
-        _adapter.AddFragment(new FragmentMaterial(), "Material");
-        _adapter.AddFragment(new FragmentCrafting(), "Crafting");
-        _adapter.AddFragment(new FragmentBuilding(), "Building");
-
-        inventory_extended.setAdapter(_adapter);
-        inventory_tabs.setupWithViewPager(inventory_extended);
-
-        inventory_tabs.getTabAt(0).setIcon(R.drawable.equipment);
-        inventory_tabs.getTabAt(1).setIcon(R.drawable.material);
-        inventory_tabs.getTabAt(2).setIcon(R.drawable.crafting);
-        inventory_tabs.getTabAt(3).setIcon(R.drawable.building);
 
         layout_animal_resource=(LinearLayout) findViewById(R.id.layout_animal_resource);
         layout_iron=(LinearLayout) findViewById(R.id.layout_iron);
@@ -71,8 +50,108 @@ public class Inventory extends AppCompatActivity {
         iron_number=(TextView) findViewById(R.id.iron_number);
         animal_resource_number=(TextView) findViewById(R.id.animal_resource_number);
 
-        collectable_array= Mainmenu.collectorScreen.collected;
 
+        inventory_tabs = (TabLayout) findViewById(R.id.inventory_tabs);
+
+        inventory_tabs.addTab(inventory_tabs.newTab(),0);
+        inventory_tabs.addTab(inventory_tabs.newTab(),1);
+        inventory_tabs.addTab(inventory_tabs.newTab(),2);
+        inventory_tabs.addTab(inventory_tabs.newTab(),3);
+
+        inventory_tabs.getTabAt(0).setIcon(R.drawable.equipment);
+        inventory_tabs.getTabAt(1).setIcon(R.drawable.material);
+        inventory_tabs.getTabAt(2).setIcon(R.drawable.crafting);
+        inventory_tabs.getTabAt(3).setIcon(R.drawable.building);
+
+        fragmentEquipment=(LinearLayout)findViewById(R.id.fragmentEquipment);
+        layout_material=(LinearLayout)findViewById(R.id.layout_material);
+        fragmentCrafting=(LinearLayout) findViewById(R.id.fragmentCrafting);
+        fragmentBuilding=(LinearLayout) findViewById(R.id.fragmentBuilding);
+
+
+        inventory_tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                switch (tab.getPosition()){
+                    case 0:{
+                        fragmentEquipment.setVisibility(View.VISIBLE);
+                        layout_material.setVisibility(View.GONE);
+                        fragmentBuilding.setVisibility(View.GONE);
+                        fragmentCrafting.setVisibility(View.GONE);
+                        break;
+
+                    }
+                    case 1:{
+                        layout_material.setVisibility(View.VISIBLE);
+                        fragmentCrafting.setVisibility(View.GONE);
+                        fragmentBuilding.setVisibility(View.GONE);
+                        fragmentEquipment.setVisibility(View.GONE);
+                        break;
+
+                    }
+                    case 2:{
+                        fragmentCrafting.setVisibility(View.VISIBLE);
+                        fragmentEquipment.setVisibility(View.GONE);
+                        layout_material.setVisibility(View.GONE);
+                        fragmentBuilding.setVisibility(View.GONE);
+                        break;
+
+                    }
+                    case 3:{
+                        fragmentBuilding.setVisibility(View.VISIBLE);
+                        fragmentCrafting.setVisibility(View.GONE);
+                        fragmentEquipment.setVisibility(View.GONE);
+                        layout_material.setVisibility(View.GONE);
+                        break;
+
+                    }
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                switch (tab.getPosition()){
+                    case 0:{
+                        fragmentEquipment.setVisibility(View.VISIBLE);
+                        layout_material.setVisibility(View.GONE);
+                        fragmentBuilding.setVisibility(View.GONE);
+                        fragmentCrafting.setVisibility(View.GONE);
+                        break;
+
+                    }
+                    case 1:{
+                        layout_material.setVisibility(View.VISIBLE);
+                        fragmentCrafting.setVisibility(View.GONE);
+                        fragmentBuilding.setVisibility(View.GONE);
+                        fragmentEquipment.setVisibility(View.GONE);
+                        break;
+
+                    }
+                    case 2:{
+                        fragmentCrafting.setVisibility(View.VISIBLE);
+                        fragmentEquipment.setVisibility(View.GONE);
+                        layout_material.setVisibility(View.GONE);
+                        fragmentBuilding.setVisibility(View.GONE);
+                        break;
+
+                    }
+                    case 3:{
+                        fragmentBuilding.setVisibility(View.VISIBLE);
+                        fragmentCrafting.setVisibility(View.GONE);
+                        fragmentEquipment.setVisibility(View.GONE);
+                        layout_material.setVisibility(View.GONE);
+                        break;
+
+                    }
+                }
+
+            }
+        });
 
         //ToDo save the collectable in database for each user than extract from it
         if (!collectable_array.isEmpty()) {
@@ -99,7 +178,6 @@ public class Inventory extends AppCompatActivity {
                 }
             }
         }else{
-            //ToDo ERROR : null object cannot access the frgmens from here
             try {
                 layout_bomb.setVisibility(View.VISIBLE);
                 bomb_number.setText("0");
@@ -114,5 +192,7 @@ public class Inventory extends AppCompatActivity {
             }
 
         }
+
+
     }
 }

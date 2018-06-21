@@ -1,24 +1,18 @@
 package com.example.hella.proxym;
 
-import android.app.usage.UsageEvents;
 import android.content.Context;
 import android.content.Intent;
-import android.gesture.Gesture;
 import android.net.Uri;
-import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.DragEvent;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.hella.proxym.Util.ID;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,11 +23,6 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
-import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Avatarscreen extends AppCompatActivity {
 
@@ -94,7 +83,7 @@ public class Avatarscreen extends AppCompatActivity {
                 return;
             }
         });
-        temp=setUpID(view_pager.getFocusedChild(),i);
+        temp=setUpID(v_temp,i);
 
 
 

@@ -17,8 +17,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -28,6 +31,8 @@ public class Signup extends AppCompatActivity {
     private ImageView profile_pic;
     private Button sign_up_button;
     private FirebaseAuth mAuth;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference mRef;
     private Context _context;
     String _Username;String _password;
 
@@ -37,23 +42,34 @@ public class Signup extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         _context = this;
-        //initialize edit texts
+
         username=(EditText) findViewById(R.id.username);
         password=(EditText) findViewById(R.id.password);
         password_repeat=(EditText) findViewById(R.id.password_repeat);
         profile_pic=(ImageView) findViewById(R.id.profile_pic);
 
-        //initialize firebase
+        firebaseDatabase=FirebaseDatabase.getInstance();
         mAuth=FirebaseAuth.getInstance();
+        mRef= firebaseDatabase.getReference(mAuth.getUid());
 
-
-
-        //initialize button
         sign_up_button=(Button) findViewById(R.id.sign_up_button);
         sign_up_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registerUser();
+            }
+        });
+
+        mRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserProfile userProfile=dataSnapshot.getValue(UserProfile.class);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
     }
@@ -103,9 +119,6 @@ public class Signup extends AppCompatActivity {
 
     }
     private void sendUserData(){
-        FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
-        DatabaseReference mRef= firebaseDatabase.getReference(mAuth.getUid());
-
         //First Step profile with email password
         UserProfile userProfile=new UserProfile(_Username, _password);
         mRef.setValue(userProfile);

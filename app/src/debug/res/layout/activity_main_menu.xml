@@ -26,8 +26,8 @@
         android:layout_height="50dp" />
 
 
-
         <android.support.design.widget.TabLayout
+            android:layout_above="@+id/map"
             android:gravity="top"
             android:background="@drawable/button_shape"
             android:id="@+id/main_menu_tabs"
@@ -36,6 +36,5 @@
             android:layout_alignParentBottom="true">
 
         </android.support.design.widget.TabLayout>
-
 
 </RelativeLayout>

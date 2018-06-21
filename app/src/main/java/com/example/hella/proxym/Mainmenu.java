@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -96,6 +97,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
         if (isServiceOK())
             getLocationPermission();
 
+
         main_menu_tabs = (TabLayout) findViewById(R.id.main_menu_tabs);
 
         main_menu_tabs.addTab(main_menu_tabs.newTab(), 0);
@@ -133,6 +135,21 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
+                switch (tab.getPosition()) {
+                    case 0: {
+                        startActivity(new Intent(_content,Inventory.class));
+
+                        break;
+                    }
+                    case 1: {
+                        startActivity(new Intent(_content, Skill.class));
+                        break;
+                    }
+                    case 2: {
+                        startActivity(new Intent(_content, Social.class));
+                        break;
+                    }
+                }
 
             }
         });

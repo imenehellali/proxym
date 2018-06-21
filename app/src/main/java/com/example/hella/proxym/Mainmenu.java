@@ -12,6 +12,7 @@ import android.location.Location;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.ActivityCompat;
@@ -51,6 +52,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
     //ToDo problem new instance each screen -> table empty
 
     private TabLayout main_menu_tabs;
+
     private Context _content;
     private ImageButton mode_button;
     private int counter;
@@ -96,6 +98,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
         if (isServiceOK())
             getLocationPermission();
+
 
 
         main_menu_tabs = (TabLayout) findViewById(R.id.main_menu_tabs);
@@ -208,19 +211,15 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
                         LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         LatLng spawn_1=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn_1).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         LatLng spawn_2=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn_2).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         LatLng spawn_3=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn_3).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                             @Override
@@ -288,19 +287,15 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                             LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             //icons has to be png not xml
                             mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             LatLng spawn_1=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             mMap.addMarker(new MarkerOptions().position(spawn_1).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             LatLng spawn_2=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             mMap.addMarker(new MarkerOptions().position(spawn_2).title("Animal Resource").icon(BitmapDescriptorFactory.fromResource(R.drawable.animal)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             LatLng spawn_3=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             mMap.addMarker(new MarkerOptions().position(spawn_3).title("Iron").icon(BitmapDescriptorFactory.fromResource(R.drawable.iron)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override

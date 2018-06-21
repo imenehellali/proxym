@@ -13,13 +13,16 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.hella.proxym.Util.ID;
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.example.hella.proxym.Util.UserProfile;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -29,17 +32,32 @@ public class Avatarscreen extends AppCompatActivity {
     private ViewPager view_pager;
     private SlideAdapter _adapter;
     private ImageButton validate;
+
     private EditText _username;
+
     private Context _context=this;
 
-    private String UserAvatarString;
-    public String AvatarString;
-    public Uri UserAvatar;
-    public String AvatarName;
-    FirebaseAuth mAuth;
-    StorageReference mStorageRef;
+    private String avatar_resource_path_string;
+    public String check_for_upload_avatar_path_string;
+
+    public Uri user_avatar_pic_uri;
+
+    public String username_define;
+
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference databaseRef;
+
+
+    private StorageReference mStorageRef;
+
+    private String temp_email ;
+    private String temp_password;
+    private String temp_profilePic;
+
     int currentID;
-    int i;
+    int i=0;
     View v_temp;
     ID temp;
 
@@ -51,14 +69,16 @@ public class Avatarscreen extends AppCompatActivity {
         setContentView(R.layout.activity_avatar_screen);
 
         mAuth =FirebaseAuth.getInstance();
+        firebaseDatabase= FirebaseDatabase.getInstance();
+        databaseRef = firebaseDatabase.getReference(mAuth.getUid());
+
+
+        _username=(EditText) findViewById(R.id.username_define);
 
         view_pager=(ViewPager) findViewById(R.id.view_pager);
         _adapter=new SlideAdapter(this);
         view_pager.setAdapter(_adapter);
 
-        i=0;
-        //UserName handling
-        _username=(EditText) findViewById(R.id.username_define);
 
 
 //ToDo still not working counter keeps on incrementing on its own
@@ -70,13 +90,11 @@ public class Avatarscreen extends AppCompatActivity {
                 if(scrollX > oldScrollX && (Math.abs(scrollX-oldScrollX)>0.5)){
                         v_temp=v;
                         i++;
-                        Toast.makeText(_context, ""+i, Toast.LENGTH_SHORT).show();
                         return;
                     }
                     if(scrollX < oldScrollX && (Math.abs(scrollX-oldScrollX)>0.5)){
                         v_temp=v;
                         i--;
-                        Toast.makeText(_context, ""+i, Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -84,8 +102,6 @@ public class Avatarscreen extends AppCompatActivity {
             }
         });
         temp=setUpID(v_temp,i);
-
-
 
         //Validate Button handling
         validate=(ImageButton) findViewById(R.id.is_selected);
@@ -95,35 +111,42 @@ public class Avatarscreen extends AppCompatActivity {
                 currentID= temp.getId();
                 switch (currentID) {
                     case 0: {
-                        UserAvatarString =getURLForResource(R.drawable.fighterman);
+                        avatar_resource_path_string =getURLForResource(R.drawable.fighterman);
                         break;
                     }
                     case 1: {
-                        UserAvatarString =getURLForResource(R.drawable.fighterwoman);
+                        avatar_resource_path_string =getURLForResource(R.drawable.fighterwoman);
                         break;
                     }
                     case 2: {
-                        UserAvatarString =getURLForResource(R.drawable.collectorman);
+                        avatar_resource_path_string =getURLForResource(R.drawable.collectorman);
                         break;
                     }
                     case 3: {
-                        UserAvatarString =getURLForResource(R.drawable.collectorwoman);
+                        avatar_resource_path_string =getURLForResource(R.drawable.collectorwoman);
                         break;
                     }
                     case 4: {
-                        UserAvatarString =getURLForResource(R.drawable.crafterman);
+                        avatar_resource_path_string =getURLForResource(R.drawable.crafterman);
                         break;
                     }
                     case 5: {
-                        UserAvatarString =getURLForResource(R.drawable.craftwomantwo);
+                        avatar_resource_path_string =getURLForResource(R.drawable.craftwomantwo);
                         break;
                     }
                 }
-                UserAvatar=Uri.parse(UserAvatarString);
+                user_avatar_pic_uri =Uri.parse(avatar_resource_path_string);
+                username_define =_username.getText().toString().trim();
+                if(username_define.equals("")){
+                    _username.setError("Username required");
+                    _username.requestFocus();
+                    return;
+                }
                 uploadAvatarToFirebase();
                 saveUserInformation();
                 finish();
                 startActivity(new Intent(_context, Mainmenu.class));
+
             }
         });
 
@@ -133,40 +156,33 @@ public class Avatarscreen extends AppCompatActivity {
     }
 
     private void saveUserInformation(){
-        AvatarName=_username.getText().toString().trim();
-        if(AvatarName.isEmpty()){
-            _username.setError("Username required");
-            _username.requestFocus();
-            return;
-        }
-        FirebaseUser user= mAuth.getCurrentUser();
-        if(user!=null && UserAvatar!=null){
-            UserProfileChangeRequest profile=new UserProfileChangeRequest.Builder().setDisplayName(AvatarName).setPhotoUri(UserAvatar).build();
-            user.updateProfile(profile).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if(task.isSuccessful())
-                        Toast.makeText(_context, "profile updated", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
 
+        temp_email= this.getIntent().getExtras().getString("passed_email");
+        temp_password=this.getIntent().getExtras().getString("passed_password");
+        temp_profilePic=this.getIntent().getExtras().getString("passed_profilePic");
+
+        UserProfile userProfile=new UserProfile();
+
+        userProfile.setUserprofilepic(temp_profilePic);
+        userProfile.setUseremail(temp_email);
+        userProfile.setUserpassword(temp_password);
+        userProfile.setUsername(username_define);
+        userProfile.setUseravatarpic(avatar_resource_path_string);
+        userProfile.setUseravatarname(""+temp.getId());
+
+        databaseRef.setValue(userProfile); //second step updating user profile
     }
 
     private void uploadAvatarToFirebase() {
-        mStorageRef = FirebaseStorage.getInstance().getReference("Avatar/"+System.currentTimeMillis()+".jpg");
-        if(UserAvatar!=null) {
-            mStorageRef.putFile(UserAvatar).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+        mStorageRef = FirebaseStorage.getInstance().getReference("Avatar/"+mAuth.getUid()+".jpg");
+        if(user_avatar_pic_uri !=null) {
+            mStorageRef.putFile(user_avatar_pic_uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    AvatarString=taskSnapshot.getMetadata().getPath();
-                    Toast.makeText(getApplicationContext(), AvatarString,Toast.LENGTH_SHORT).show();
-
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(getApplicationContext(), "couldn't upload image png",Toast.LENGTH_SHORT).show();
 
                 }
             });

@@ -36,7 +36,8 @@ public class ForgotPassWord extends AppCompatActivity {
             public void onClick(View v) {
                 String useremail=email_forgot.getText().toString().trim();
                 if(useremail.equals("")){
-                    Toast.makeText(ForgotPassWord.this, "enter email", Toast.LENGTH_SHORT).show();
+                    email_forgot.setError("Email required");
+                    email_forgot.requestFocus();
                 }else{
                     mAuth.sendPasswordResetEmail(useremail).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override

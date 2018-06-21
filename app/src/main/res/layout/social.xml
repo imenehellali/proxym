@@ -42,14 +42,48 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:orientation="vertical"
             android:id="@+id/fragmentProfile"
-            android:visibility="gone">
+            android:visibility="visible">
 
+                <ImageView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:layout_marginHorizontal="130dp"
+                    android:id="@+id/PROFILEPIC"
+                    android:background="@drawable/button_shape_round"
+                    />
                 <TextView
+                    android:id="@+id/USERNAME"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="profile fragment"
-                    android:textSize="60sp"
-                    android:layout_marginTop="250dp"
+                    android:text="USERNAME"
+                    android:textSize="20sp"
+                    android:layout_marginTop="20dp"
+                    android:textStyle="bold"
+                    />
+                <TextView
+                    android:id="@+id/EMAIL"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EMAIL"
+                    android:textSize="20sp"
+                    android:layout_marginTop="20dp"
+                    android:textStyle="bold"
+                    />
+                <ImageView
+                    android:layout_marginTop="50dp"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_marginHorizontal="100dp"
+                    android:id="@+id/AVATARPIC"
+                    android:background="@drawable/button_shape_round"
+                    />
+                <TextView
+                    android:id="@+id/AVATARNAME"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AVATAR NAME"
+                    android:textSize="20sp"
+                    android:layout_marginTop="20dp"
                     android:textStyle="bold"
                     />
 
@@ -73,13 +107,14 @@
                     />
 
         </LinearLayout>
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             xmlns:tools="http://schemas.android.com/tools"
             android:orientation="vertical"
             android:layout_marginVertical="60dp"
-            android:id="@+id/fragmentUser">
+            android:id="@+id/fragmentUser"
+            android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"

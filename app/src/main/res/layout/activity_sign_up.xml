@@ -22,14 +22,15 @@
         android:layout_height="match_parent"
         android:layout_marginHorizontal="40dp"
         android:layout_marginTop="50dp"
-        android:layout_marginBottom="220dp"
-        android:weightSum="5">
+        android:layout_marginBottom="220dp">
         <ImageView
-            android:layout_width="80dp"
+            android:layout_marginTop="10dp"
+            android:layout_width="100dp"
             android:id="@+id/profile_pic"
+            android:scaleType="fitCenter"
+            android:background="@drawable/button_shape_round"
             android:layout_marginHorizontal="100dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"/>
+            android:layout_height="100dp"/>
 
         <EditText
             android:id="@+id/username"

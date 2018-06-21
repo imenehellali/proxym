@@ -2,6 +2,7 @@ package com.example.hella.proxym;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.location.Location;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.ActivityCompat;
@@ -19,15 +21,18 @@ import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.hella.proxym.Util.UserProfile;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -44,18 +49,26 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 
 
 public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
-    //ToDo tried parcelabel had some problems with the constructor -> delete
-    //ToDo problem new instance each screen -> table empty
+
 
     private TabLayout main_menu_tabs;
+
     private Context _content;
     private ImageButton mode_button;
     private int counter;
+
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference mRef;
+    private UserProfile TUP;
 
 
     public GoogleMap mMap;
@@ -77,12 +90,20 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
+
     @Override
     protected void onStart() {
         super.onStart();
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
+        firebaseDatabase=FirebaseDatabase.getInstance();
+        mRef=firebaseDatabase.getReference(user.getUid());
+
+        TUP=(UserProfile) Mainmenu.this.getIntent().getExtras().getParcelable("USERPROFILE2");
+        Toast.makeText(this,TUP.getUsername()+TUP.getUseremail(),Toast.LENGTH_LONG).show();
+
         _content = this;
+
         collectorScreen = new CollectorScreen();
         builderScreen = new BuilderScreen();
         fighterScreen = new FighterScreen();
@@ -98,6 +119,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
             getLocationPermission();
 
 
+
         main_menu_tabs = (TabLayout) findViewById(R.id.main_menu_tabs);
 
         main_menu_tabs.addTab(main_menu_tabs.newTab(), 0);
@@ -108,13 +130,16 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
         main_menu_tabs.getTabAt(1).setIcon(R.drawable.skill).setText("");
         main_menu_tabs.getTabAt(2).setIcon(R.drawable.social).setText("");
 
+
         main_menu_tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),String.valueOf(currentLocation.getLatitude()),String.valueOf(currentLocation.getLongitude()));
+                mRef.setValue(userProfile);
+
                 switch (tab.getPosition()) {
                     case 0: {
-                        startActivity(new Intent(_content,Inventory.class));
-
+                         startActivity(new Intent(_content,Inventory.class));
                         break;
                     }
                     case 1: {
@@ -122,7 +147,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                         break;
                     }
                     case 2: {
-                        startActivity(new Intent(_content, Social.class));
+                        startActivity(new Intent(_content, Social.class).putExtra("USERPROFILE3",userProfile));
                         break;
                     }
                 }
@@ -135,10 +160,12 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
+                UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),String.valueOf(currentLocation.getLatitude()),String.valueOf(currentLocation.getLongitude()));
+                mRef.setValue(userProfile);
                 switch (tab.getPosition()) {
+
                     case 0: {
                         startActivity(new Intent(_content,Inventory.class));
-
                         break;
                     }
                     case 1: {
@@ -146,7 +173,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                         break;
                     }
                     case 2: {
-                        startActivity(new Intent(_content, Social.class));
+                        startActivity(new Intent(_content, Social.class).putExtra("USERPROFILE3",userProfile));
                         break;
                     }
                 }
@@ -208,19 +235,15 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
                         LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         LatLng spawn_1=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn_1).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         LatLng spawn_2=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn_2).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         LatLng spawn_3=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                         mMap.addMarker(new MarkerOptions().position(spawn_3).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
-                        Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                             @Override
@@ -264,9 +287,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
 
     private void moveCamera(LatLng latLng, float ZOOM) {
-
-        Toast.makeText(this, "position " + latLng, Toast.LENGTH_SHORT).show();
-        mMap.addMarker(new MarkerOptions().position(latLng).title("current location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+        mMap.addMarker(new MarkerOptions().position(latLng).title("current location"));
         mMap.addCircle(new CircleOptions().center(latLng).radius(1000f).strokeWidth(0f).fillColor(Color.argb(0.2f,0f, 142f,255f)));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM));
@@ -281,26 +302,22 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(_content, "SUCCESS current location", Toast.LENGTH_LONG).show();
                             currentLocation = (Location) task.getResult();
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+
 
                             LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             //icons has to be png not xml
                             mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             LatLng spawn_1=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             mMap.addMarker(new MarkerOptions().position(spawn_1).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             LatLng spawn_2=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             mMap.addMarker(new MarkerOptions().position(spawn_2).title("Animal Resource").icon(BitmapDescriptorFactory.fromResource(R.drawable.animal)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             LatLng spawn_3=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             mMap.addMarker(new MarkerOptions().position(spawn_3).title("Iron").icon(BitmapDescriptorFactory.fromResource(R.drawable.iron)));
-                            Toast.makeText(_content, "spawn position " + spawn, Toast.LENGTH_LONG).show();
 
                             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override

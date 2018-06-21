@@ -10,11 +10,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.hella.proxym.Util.UserProfile;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Signin extends AppCompatActivity {
 
@@ -61,7 +67,23 @@ public class Signin extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             FirebaseUser user = mAuth.getCurrentUser();
-                            startActivity(new Intent(_context , Mainmenu.class));
+                            FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
+                            DatabaseReference mRef=firebaseDatabase.getReference(user.getUid());
+
+                            mRef.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    UserProfile userProfile=dataSnapshot.getValue(UserProfile.class);
+                                    startActivity(new Intent(_context , Mainmenu.class).putExtra("USERPROFILE2",userProfile));
+                                    finish();
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Authentication failed.",Toast.LENGTH_SHORT).show();

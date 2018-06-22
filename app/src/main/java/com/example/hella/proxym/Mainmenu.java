@@ -8,20 +8,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -32,19 +30,26 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.Tile;
+import com.google.android.gms.maps.model.TileOverlay;
+
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,7 +57,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+
 
 
 public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
@@ -207,28 +212,22 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                         mode_button.setScaleType(ImageView.ScaleType.CENTER);
                         mode_button.setBackground(getDrawable(R.drawable.button_shape_round_one));
                         counter++;
-                        //ToDo buildscreen Grid -> works but can't see it tried All transparancy :/
-                        final GroundOverlayOptions groundOverlayOptions=new GroundOverlayOptions().
-                                image(BitmapDescriptorFactory.fromResource(R.drawable.grid)).
-                                position(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 100f)
-                                .visible(true).clickable(true).transparency(1f);
+                        //ToDo Ground overlay done need to do multiple -> not allowed (tried the array walkthrough and all )
+                            LatLng northeast=new LatLng(currentLocation.getLatitude()+0.001,currentLocation.getLongitude()+0.001);
+                            LatLng southwest=new LatLng(currentLocation.getLatitude()-0.001,currentLocation.getLongitude()-0.001);
+                            LatLngBounds bounds=new LatLngBounds(southwest,northeast);
 
-                        mMap.addGroundOverlay(groundOverlayOptions).setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
+                            BitmapDescriptor image=BitmapDescriptorFactory.fromResource(R.drawable.grid);
 
-                        mMap.setOnGroundOverlayClickListener(new GoogleMap.OnGroundOverlayClickListener() {
-                            @Override
-                            public void onGroundOverlayClick(GroundOverlay groundOverlay) {
-                                //ToDo alwys gives 0.5 / 0.5 middle of screen
-                                float HORIZONTAL= groundOverlayOptions.getAnchorU();
-                                float VERTICAL = groundOverlayOptions.getAnchorV();
+                            GroundOverlayOptions options=new GroundOverlayOptions().image(image).positionFromBounds(bounds).transparency(0f);
 
-                                Toast.makeText(_content, "grid local " + HORIZONTAL+"\n"+VERTICAL, Toast.LENGTH_SHORT).show();
-                                Toast.makeText(_content, "grid map "+ groundOverlay.getPosition().latitude + "\n"+groundOverlay.getPosition().longitude, Toast.LENGTH_SHORT).show();
-
-                            }
-                        });
-
-
+                            mMap.addGroundOverlay(options).setClickable(true);
+                            mMap.addGroundOverlay(options).setTransparency(0f);
+                            mMap.setOnGroundOverlayClickListener(new GoogleMap.OnGroundOverlayClickListener() {
+                                @Override
+                                public void onGroundOverlayClick(GroundOverlay groundOverlay) {
+                                    Toast.makeText(Mainmenu.this, "player clicked ",Toast.LENGTH_SHORT ).show(); }
+                            });
                         break;}
                     case 0:{
                         mode_button.setImageResource(R.drawable.collectmode);
@@ -287,11 +286,12 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
     }
 
 
+    private void generateMultipleOverlays(){
 
-
+    }
 
     private void moveCamera(LatLng latLng, float ZOOM) {
-        mMap.addMarker(new MarkerOptions().position(latLng).title("current location").icon(BitmapDescriptorFactory.fromResource(R.drawable.my_marker)));
+        mMap.addMarker(new MarkerOptions().position(latLng).title(TUP.getUsername()).icon(BitmapDescriptorFactory.fromResource(R.drawable.my_marker)));
         mMap.addCircle(new CircleOptions().center(latLng).radius(1000f).strokeWidth(1f).strokeColor(Color.BLUE).fillColor(Color.argb(0.2f,0f, 142f,255f)));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM));
@@ -300,7 +300,6 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
         if (TUP_OTHER!=null) {
             mMap.addMarker(new MarkerOptions().position(latLng).title(TUP_OTHER.getUsername()).icon(BitmapDescriptorFactory.fromResource(R.drawable.enemy_marker)));
             mMap.addCircle(new CircleOptions().center(latLng).radius(1000f).strokeWidth(1f).strokeColor(Color.RED).fillColor(Color.parseColor("#33FF0026")));//the Least you go the less you get AARRGGBB
-
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM));
         }
     }
@@ -316,13 +315,17 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
                             currentLocation = (Location) task.getResult();
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
+                            LatLng CURRENT=new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                            moveCamera(CURRENT, DEFAULT_ZOOM);
 
                             if(TUP_OTHER!=null){
                                 Double OTHER_LOCATION_LAT=Double.valueOf(TUP_OTHER.getUserlat());
                                 Double OTHER_LOCATION_LNG=Double.valueOf(TUP_OTHER.getUserlng());
                                 LatLng OTHER_LOCATION=new LatLng(OTHER_LOCATION_LAT,OTHER_LOCATION_LNG);
                                 moveCameraOther(OTHER_LOCATION, DEFAULT_ZOOM);
+
+                                mMap.addPolyline(new PolylineOptions().add(CURRENT,OTHER_LOCATION).color(Color.YELLOW).width(2f));
+
                             }
 
                             LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));

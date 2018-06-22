@@ -33,7 +33,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="enemy_marker" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="F:\tileoverlay.png" />
+                                      <entry key="outputName" value="grid" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="8f2534" />
                                     </map>

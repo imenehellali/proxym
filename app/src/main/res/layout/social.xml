@@ -38,7 +38,7 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:orientation="vertical"
             android:id="@+id/fragmentProfile"
-            android:visibility="gone">
+            android:visibility="visible">
 
                 <ImageView
                     android:layout_width="90dp"

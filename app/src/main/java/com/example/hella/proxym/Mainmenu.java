@@ -68,7 +68,9 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
     private FirebaseUser user;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference mRef;
+
     private UserProfile TUP;
+    private UserProfile TUP_OTHER;
 
 
     public GoogleMap mMap;
@@ -100,7 +102,9 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
         mRef=firebaseDatabase.getReference(user.getUid());
 
         TUP=(UserProfile) Mainmenu.this.getIntent().getExtras().getParcelable("USERPROFILE2");
-        Toast.makeText(this,TUP.getUsername()+TUP.getUseremail(),Toast.LENGTH_LONG).show();
+        if(Mainmenu.this.getIntent().getExtras().getParcelable("OTHERUSER")!=null){
+            TUP_OTHER=(UserProfile) Mainmenu.this.getIntent().getExtras().getParcelable("OTHERUSER");
+        }
 
         _content = this;
 
@@ -160,7 +164,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),String.valueOf(currentLocation.getLatitude()),String.valueOf(currentLocation.getLongitude()));
+                UserProfile userProfile = new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),String.valueOf(currentLocation.getLatitude()),String.valueOf(currentLocation.getLongitude()));
                 mRef.setValue(userProfile);
                 switch (tab.getPosition()) {
 
@@ -287,11 +291,20 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
 
     private void moveCamera(LatLng latLng, float ZOOM) {
-        mMap.addMarker(new MarkerOptions().position(latLng).title("current location"));
-        mMap.addCircle(new CircleOptions().center(latLng).radius(1000f).strokeWidth(0f).fillColor(Color.argb(0.2f,0f, 142f,255f)));
+        mMap.addMarker(new MarkerOptions().position(latLng).title("current location").icon(BitmapDescriptorFactory.fromResource(R.drawable.my_marker)));
+        mMap.addCircle(new CircleOptions().center(latLng).radius(1000f).strokeWidth(1f).strokeColor(Color.BLUE).fillColor(Color.argb(0.2f,0f, 142f,255f)));
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM));
     }
+    private void moveCameraOther(LatLng latLng, float ZOOM) {
+        if (TUP_OTHER!=null) {
+            mMap.addMarker(new MarkerOptions().position(latLng).title(TUP_OTHER.getUsername()).icon(BitmapDescriptorFactory.fromResource(R.drawable.enemy_marker)));
+            mMap.addCircle(new CircleOptions().center(latLng).radius(1000f).strokeWidth(1f).strokeColor(Color.RED).fillColor(Color.parseColor("#33FF0026")));//the Least you go the less you get AARRGGBB
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, ZOOM));
+        }
+    }
+
 
     private void getCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -305,6 +318,12 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                             currentLocation = (Location) task.getResult();
                             moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
 
+                            if(TUP_OTHER!=null){
+                                Double OTHER_LOCATION_LAT=Double.valueOf(TUP_OTHER.getUserlat());
+                                Double OTHER_LOCATION_LNG=Double.valueOf(TUP_OTHER.getUserlng());
+                                LatLng OTHER_LOCATION=new LatLng(OTHER_LOCATION_LAT,OTHER_LOCATION_LNG);
+                                moveCameraOther(OTHER_LOCATION, DEFAULT_ZOOM);
+                            }
 
                             LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
                             //icons has to be png not xml

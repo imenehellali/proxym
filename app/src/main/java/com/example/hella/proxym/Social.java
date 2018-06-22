@@ -2,6 +2,7 @@ package com.example.hella.proxym;
 
 
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.hella.proxym.Util.ItemClickListener;
 import com.example.hella.proxym.Util.UserProfile;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -75,10 +78,10 @@ public class Social extends AppCompatActivity {
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         mRef = firebaseDatabase.getReference(user.getUid());
-        //creating folder for locations
+
         onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
         counterRef = FirebaseDatabase.getInstance().getReference("LastOnline");
-        //ta5la9 new Folder bch t7ot fih mba3ed il statu il jdod
+        //creating current user folder in data base that is dynamically filled and emptied with help from onlineRef
         try {
             currentRef = FirebaseDatabase.getInstance().getReference("LastOnline").child(user.getUid());
         } catch (Exception e) {
@@ -159,6 +162,7 @@ public class Social extends AppCompatActivity {
 
                     }
                 });
+
             }
 
             @Override
@@ -167,14 +171,23 @@ public class Social extends AppCompatActivity {
             }
 
         });
-
-
         try {
             FirebaseRecyclerOptions<UserProfile> options = new FirebaseRecyclerOptions.Builder<UserProfile>().setQuery(counterRef, UserProfile.class).build();
             adapter = new FirebaseRecyclerAdapter<UserProfile, ListOnlineViewHolder>(options) {
                 @Override
-                protected void onBindViewHolder(@NonNull ListOnlineViewHolder holder, int position, @NonNull UserProfile model) {
+                protected void onBindViewHolder(@NonNull ListOnlineViewHolder holder, int position, @NonNull final UserProfile model) {
                     holder.txt_email.setText(model.getUsername());
+                    holder.itemClickListener= new ItemClickListener() {
+                        @Override
+                        public void onClick(View view, int position) {
+                            if(!model.getUseremail().equals(user.getEmail())){
+                                Intent map=new Intent(Social.this, Mainmenu.class);
+                                map.putExtra("OTHERUSER", model);//one name for same user USERPROFILE2 and for other users one name OTHERUSER
+                                map.putExtra("USERPROFILE2",TUP);
+                                startActivity(map);
+                            }
+                        }
+                    };
                     //ToDo add profile pic instead of online pic with picasso and same as above after figuring out the path
                 }
 
@@ -185,12 +198,12 @@ public class Social extends AppCompatActivity {
                     return new ListOnlineViewHolder(view);
                 }
             };
+            adapter.notifyDataSetChanged();
+            listOnline.setAdapter(adapter);
         } catch (Exception e) {
             Toast.makeText(Social.this, "" + e.getMessage(), Toast.LENGTH_LONG).show();
         }
 
-        adapter.notifyDataSetChanged();
-        listOnline.setAdapter(adapter);
 
 
         social_tabs = (TabLayout) findViewById(R.id.social_tabs);

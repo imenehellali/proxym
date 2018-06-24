@@ -1,18 +1,25 @@
 package com.example.hella.proxym;
 
-import android.content.Intent;
+
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
+
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hella.proxym.Util.UserProfile;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,11 +32,14 @@ public class Inventory extends AppCompatActivity {
     private LinearLayout layout_animal_resource,layout_iron, layout_leaf,layout_bomb;
     private TextView bomb_number,leaf_number,iron_number,animal_resource_number ;
 
-    private ArrayList<Collectables> collectable_array=new ArrayList<Collectables>();
+    private UserProfile TUP; //Plan B if anything crashes :p -> don't know why i could't update my database anymore :(
 
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+    private FirebaseDatabase firebaseDatabase;
+    private DatabaseReference mRef;
+
 
 
     @Override
@@ -37,8 +47,14 @@ public class Inventory extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.inventory);
 
-        mAuth=FirebaseAuth.getInstance();
-        user=mAuth.getCurrentUser();
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        mRef = firebaseDatabase.getReference(user.getUid());
+
+        TUP=(UserProfile) Inventory.this.getIntent().getExtras().getParcelable("USERPROFILE3");
+        Toast.makeText(this, TUP.getUsermaterials().get(0), Toast.LENGTH_LONG).show();
 
         layout_animal_resource=(LinearLayout) findViewById(R.id.layout_animal_resource);
         layout_iron=(LinearLayout) findViewById(R.id.layout_iron);
@@ -67,6 +83,95 @@ public class Inventory extends AppCompatActivity {
         layout_material=(LinearLayout)findViewById(R.id.layout_material);
         fragmentCrafting=(LinearLayout) findViewById(R.id.fragmentCrafting);
         fragmentBuilding=(LinearLayout) findViewById(R.id.fragmentBuilding);
+
+        //updating the material layout
+        mRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
+                //find problem and then resolve
+                ArrayList<String> materials = TUP.getUsermaterials();
+                if (!materials.isEmpty()) {
+                    for (Iterator<String> it = materials.iterator(); it.hasNext(); ) {
+                        String material = it.next();
+                        String material1 = material.substring(0, material.indexOf(' ')).trim();
+                        String number = material.substring(material.indexOf(' '));
+                        switch (material1) {
+                            case "Bomb": {
+                                layout_bomb.setVisibility(View.VISIBLE);
+                                bomb_number.setText(number);
+                                Toast.makeText(Inventory.this, material, Toast.LENGTH_LONG).show();
+                                break;
+                            }
+                            case "Iron": {
+                                layout_iron.setVisibility(View.VISIBLE);
+                                iron_number.setText(number);
+                                break;
+                            }
+                            case "Leaf": {
+                                layout_leaf.setVisibility(View.VISIBLE);
+                                leaf_number.setText(number);
+                                break;
+                            }
+                            case "AnimalResource": {
+                                layout_animal_resource.setVisibility(View.VISIBLE);
+                                animal_resource_number.setText(number);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                else{
+                    try {
+                        layout_bomb.setVisibility(View.VISIBLE);
+                        bomb_number.setText("0");
+                        layout_iron.setVisibility(View.VISIBLE);
+                        iron_number.setText("0");
+                        layout_leaf.setVisibility(View.VISIBLE);
+                        leaf_number.setText("0");
+                        layout_animal_resource.setVisibility(View.VISIBLE);
+                        animal_resource_number.setText("0");
+                    } catch (Exception e) {
+                        Toast.makeText(Inventory.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(Inventory.this, "DATABASE PROBLEM", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //updating the equipment layout
+       /* mRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
+                ArrayList<String> equipments = userProfile.getUserequipments();
+                if (!equipments.isEmpty()) {
+                    for (Iterator<String> it = equipments.iterator(); it.hasNext(); ) {
+                        String equipment = it.next();
+                        String equipment1 = equipment.substring(0, equipment.indexOf(' ')).trim();
+                        String number = equipment.substring(equipment.indexOf(' '));
+                        switch (equipment1) {
+                            //ToDo need to add some Equipments
+                        }
+                    }
+                }
+
+                else{
+                    //ToDo add the DEFAULT 0 equipment
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(Inventory.this, "DATABASE PROBLEM", Toast.LENGTH_SHORT).show();
+            }
+        });*/
 
 
         inventory_tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -152,47 +257,6 @@ public class Inventory extends AppCompatActivity {
 
             }
         });
-
-        //ToDo save the collectable in database for each user than extract from it
-        if (!collectable_array.isEmpty()) {
-            for (Iterator<Collectables> it = collectable_array.iterator(); it.hasNext(); ) {
-                Collectables collectables = it.next();
-                switch (collectables.id){
-                    case "Bomb":{
-                        layout_bomb.setVisibility(View.VISIBLE);
-                        bomb_number.setText(""+collectables.number);
-                        Toast.makeText(this,"added "+collectables.number+ " "+collectables.id+" \n"+layout_bomb.getVisibility(), Toast.LENGTH_SHORT).show();
-                    }
-                    case "Iron":{
-                        layout_iron.setVisibility(View.VISIBLE);
-                        iron_number.setText(""+collectables.number);
-                    }
-                    case "Leaf":{
-                        layout_leaf.setVisibility(View.VISIBLE);
-                        leaf_number.setText(""+collectables.number);
-                    }
-                    case "Animal Resource":{
-                        layout_animal_resource.setVisibility(View.VISIBLE);
-                        animal_resource_number.setText(""+collectables.number);
-                    }
-                }
-            }
-        }else{
-            try {
-                layout_bomb.setVisibility(View.VISIBLE);
-                bomb_number.setText("0");
-                layout_iron.setVisibility(View.VISIBLE);
-                iron_number.setText("0");
-                layout_leaf.setVisibility(View.VISIBLE);
-                leaf_number.setText("0");
-                layout_animal_resource.setVisibility(View.VISIBLE);
-                animal_resource_number.setText("0");
-            } catch (Exception e) {
-                Toast.makeText(Inventory.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-
-        }
-
 
     }
 }

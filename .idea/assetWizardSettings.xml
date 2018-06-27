@@ -34,10 +34,10 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="F:\tileoverlay.png" />
-                                      <entry key="outputName" value="grid" />
+                                      <entry key="imageAsset" value="F:\minery.png" />
+                                      <entry key="outputName" value="minery" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="8f2534" />
+                                      <entry key="themeColor" value="000000" />
                                     </map>
                                   </option>
                                 </PersistentState>

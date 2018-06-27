@@ -60,9 +60,16 @@
             android:name=".Mainmenu"
             android:label="@+id/map" />
         <activity android:name=".Avatarscreen" />
-        <activity android:name=".Inventory" />
-        <activity android:name=".Social" />
-        <activity android:name=".Skill" />
+        <activity android:name=".Inventory"
+            android:theme="@style/AppTheme.custometheme"/>
+        <activity android:name=".Social"
+            android:theme="@style/AppTheme.custometheme"/>
+        <activity android:name=".Skill"
+            android:theme="@style/AppTheme.custometheme"/>
+        <activity android:name=".PopupScreen"
+            android:theme="@style/AppTheme.custometheme"/>
+        <activity android:name=".PopupScreenBuilding"
+            android:theme="@style/AppTheme.custometheme"/>
         <activity android:name=".ForgotPassWord">
         </activity>
     </application>

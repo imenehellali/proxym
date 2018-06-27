@@ -37,5 +37,40 @@
 
     </android.support.design.widget.TabLayout>
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="250dp"
+        android:background="@color/transparent"
+        android:orientation="horizontal"
+        android:id="@+id/building_layout"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/tower"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:background="@drawable/button_shape"
+            android:src="@drawable/tower" />
+
+        <ImageView
+            android:id="@+id/mill"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:background="@drawable/button_shape"
+            android:src="@drawable/mill" />
+
+        <ImageView
+            android:id="@+id/minery"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:background="@drawable/button_shape"
+            android:src="@drawable/minery" />
+    </LinearLayout>
+
 
 </RelativeLayout>

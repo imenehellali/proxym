@@ -27,6 +27,7 @@ public class UserProfile implements Parcelable {
 
     private ArrayList<String> usermaterials;
     private ArrayList<String> userequipments;
+    private ArrayList<String> usereaskedresources;
 
     private ArrayList<UserProfile> userfriends;
 
@@ -96,6 +97,25 @@ public class UserProfile implements Parcelable {
             Log.d("EQUIPMENT", " "+i+" "+ element);
             return;
         }//first element
+
+    }
+
+    public ArrayList<String> getUsereaskedresources() {
+        return usereaskedresources;
+    }
+
+    public void addAskedResources(String element, String otherUserUID) {
+        if(usereaskedresources==null){
+            usereaskedresources=new ArrayList<String>();
+            String toAdd=element+" "+otherUserUID;
+            usereaskedresources.add(toAdd);
+            Log.d("ASK FOR RESOURCE ", toAdd);
+        }
+        else{
+            String toAdd=element+" "+otherUserUID;
+            usereaskedresources.add(toAdd);
+            Log.d("ASK FOR RESOURCE ", toAdd);
+        }
 
     }
 

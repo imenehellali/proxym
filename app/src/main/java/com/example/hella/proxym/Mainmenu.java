@@ -20,9 +20,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
+
+
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.hella.proxym.Util.UserProfile;
@@ -60,9 +64,11 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
 
 
     private TabLayout main_menu_tabs;
+    private LinearLayout building_layout;
 
     private Context _content;
     private ImageButton mode_button;
+    private ImageView tower,mill,minery;
     private int counter;
 
     private FirebaseAuth mAuth;
@@ -80,7 +86,7 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
     public GoogleMap mMap;
     public Location currentLocation;
     public  static CollectorScreen collectorScreen;
-    BuilderScreen builderScreen;
+    private String building_clicked;
     FighterScreen fighterScreen;
 
 
@@ -131,15 +137,23 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
         if(Mainmenu.this.getIntent().getExtras().getParcelable("OTHERUSER")!=null){
             TUP_OTHER=(UserProfile) Mainmenu.this.getIntent().getExtras().getParcelable("OTHERUSER");
         }
+        if(Mainmenu.this.getIntent().getExtras().getString("building_clicked")!=null){
+            building_clicked=(String)Mainmenu.this.getIntent().getExtras().getString("building_clicked");
+        }
 
         _content = this;
 
         collectorScreen = new CollectorScreen();
-        builderScreen = new BuilderScreen();
         fighterScreen = new FighterScreen();
 
         materials=new ArrayList<String>();
         equipments=new ArrayList<String>();
+
+        tower=(ImageView)findViewById(R.id.tower);
+        mill=(ImageView)findViewById(R.id.mill);
+        minery=(ImageView)findViewById(R.id.minery);
+
+        building_layout=(LinearLayout) findViewById(R.id.building_layout);
 
         main_menu_tabs = (TabLayout) findViewById(R.id.main_menu_tabs);
 
@@ -154,8 +168,23 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
         //initialize
         counter=1;
         mode_button=(ImageButton) findViewById(R.id.mode_button);
-        if(TUP_OTHER!=null){
+
+        if(TUP_OTHER!=null) {
             mode_button.setVisibility(View.GONE);
+            //mMap.setInfoWindowAdapter(new PopupScreenAdapter(Mainmenu.this));
+            if (mMap!=null) {
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+                        if (marker.getTitle().equals(TUP_OTHER.getUsername())) {
+                            Intent intent = new Intent(Mainmenu.this, PopupScreen.class);
+                            intent.putExtra("OTHER_USER", TUP_OTHER);
+                            startActivity(intent);
+                        }
+                        return true;
+                    }
+                });
+            }
         }
 
 
@@ -164,30 +193,51 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
+                    final String lat=String.valueOf(currentLocation.getLatitude());
+                    final String lng=String.valueOf(currentLocation.getLongitude());
+                    TUP_NOW.setUserlng(lng);
+                    TUP_NOW.setUserlat(lat);
+
                     switch (marker.getTitle()) {
                         case "Bomb": {
                             TUP_NOW.addMaterials("Bomb ");
+                            materials=TUP_NOW.getUsermaterials();
+                            equipments=TUP_NOW.getUserequipments();
+                            UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                            mRef.setValue(userProfile);
                             marker.remove();
                             break;
                         }
                         case "Leaf": {
 
                             TUP_NOW.addMaterials("Leaf ");
+                            materials=TUP_NOW.getUsermaterials();
+                            equipments=TUP_NOW.getUserequipments();
+                            UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                            mRef.setValue(userProfile);
                             marker.remove();
                             break;
                         }
                         case "Animal Resource": {
                             TUP_NOW.addMaterials("AnimalResource ");
+                            materials=TUP_NOW.getUsermaterials();
+                            equipments=TUP_NOW.getUserequipments();
+                            UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                            mRef.setValue(userProfile);
                             marker.remove();
                             break;
                         }
                         case "Iron": {
                             TUP_NOW.addMaterials("Iron ");
+                            materials=TUP_NOW.getUsermaterials();
+                            equipments=TUP_NOW.getUserequipments();
+                            UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                            mRef.setValue(userProfile);
                             marker.remove();
                             break;
                         }
                     }
-                    return false;
+                    return true;
 
                 }
             });
@@ -206,20 +256,26 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                     //after each select it updates the position to the database
                     case 0: {
                         UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
-                        startActivity(new Intent(_content,Inventory.class).putExtra("USERPROFILE3",userProfile));
+                        Intent intent=new Intent(Mainmenu.this,Inventory.class);
+                        intent.putExtra("USERPROFILE3",TUP_NOW);
                         mRef.setValue(userProfile);
+                        startActivity(intent);
                         break;
                     }
                     case 1: {
                         UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
-                        startActivity(new Intent(_content, Skill.class).putExtra("USERPROFILE3",userProfile));
-                        mRef.setValue(userProfile)
-                        ;break;
+                        Intent intent=new Intent(Mainmenu.this,Skill.class);
+                        intent.putExtra("USERPROFILE3",TUP_NOW);
+                        mRef.setValue(userProfile);
+                        startActivity(intent);
+                        break;
                     }
                     case 2: {
                         UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
-                        startActivity(new Intent(_content, Social.class).putExtra("USERPROFILE3",userProfile));
+                        Intent intent=new Intent(Mainmenu.this,Social.class);
+                        intent.putExtra("USERPROFILE3",TUP_NOW);
                         mRef.setValue(userProfile);
+                        startActivity(intent);
                         break;
                     }
                 }
@@ -240,20 +296,26 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                     //after each select it updates the position to the database
                     case 0: {
                         UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
-                        startActivity(new Intent(_content,Inventory.class).putExtra("USERPROFILE3",TUP_NOW));
+                        Intent intent=new Intent(Mainmenu.this,Inventory.class);
+                        intent.putExtra("USERPROFILE3",TUP_NOW);
                         mRef.setValue(userProfile);
+                        startActivity(intent);
                         break;
                     }
                     case 1: {
                         UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
-                        startActivity(new Intent(_content, Skill.class).putExtra("USERPROFILE3",TUP_NOW));
+                        Intent intent=new Intent(Mainmenu.this,Skill.class);
+                        intent.putExtra("USERPROFILE3",TUP_NOW);
                         mRef.setValue(userProfile);
+                        startActivity(intent);
                         break;
                     }
                     case 2: {
                         UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
-                        startActivity(new Intent(_content, Social.class).putExtra("USERPROFILE3",TUP_NOW));
+                        Intent intent=new Intent(Mainmenu.this,Social.class);
+                        intent.putExtra("USERPROFILE3",TUP_NOW);
                         mRef.setValue(userProfile);
+                        startActivity(intent);
                         break;
                     }
                 }
@@ -293,31 +355,47 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                             mMap.setOnGroundOverlayClickListener(new GoogleMap.OnGroundOverlayClickListener() {
                                 @Override
                                 public void onGroundOverlayClick(GroundOverlay groundOverlay) {
-                                    Toast.makeText(Mainmenu.this, "player clicked ",Toast.LENGTH_SHORT ).show(); }
+                                    //just new Activity with custom theme translucent and smaller
+                                    building_layout.setVisibility(View.VISIBLE);
+                                    final LatLng latLng=groundOverlay.getPosition();
+                                    //Intent intent=new Intent(Mainmenu.this, PopupScreenBuilding.class);
+                                    //startActivity(intent);
+
+                                    tower.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mMap.addMarker(new MarkerOptions().position(latLng).title("tower").icon(BitmapDescriptorFactory.fromResource(R.drawable.tower)));
+                                            building_layout.setVisibility(View.GONE);
+                                        }
+                                    });
+                                    mill.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mMap.addMarker(new MarkerOptions().position(latLng).title("mill").icon(BitmapDescriptorFactory.fromResource(R.drawable.mill)));
+                                            building_layout.setVisibility(View.GONE);
+                                        }
+                                    });
+                                    minery.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            mMap.addMarker(new MarkerOptions().position(latLng).title("minery").icon(BitmapDescriptorFactory.fromResource(R.drawable.minery)));
+                                            building_layout.setVisibility(View.GONE);
+                                        }
+                                    });
+
+                                }
                             });
                         break;}
-                    case 0:{
+                    case 0: {
+                        mMap.clear();
                         mRef.setValue(TUP);
                         mode_button.setImageResource(R.drawable.collectmode);
                         mode_button.setScaleType(ImageView.ScaleType.FIT_CENTER);
                         mode_button.setBackground(getDrawable(R.drawable.button_shape_round));
                         counter++;
-
-
-                        LatLng spawn=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                        //icons has to be png not xml
-                        mMap.addMarker(new MarkerOptions().position(spawn).title("Bomb").icon(BitmapDescriptorFactory.fromResource(R.drawable.bomb)));
-
-                        LatLng spawn_1=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                        mMap.addMarker(new MarkerOptions().position(spawn_1).title("Leaf").icon(BitmapDescriptorFactory.fromResource(R.drawable.leaf)));
-
-                        LatLng spawn_2=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                        mMap.addMarker(new MarkerOptions().position(spawn_2).title("Animal Resource").icon(BitmapDescriptorFactory.fromResource(R.drawable.animal)));
-
-                        LatLng spawn_3=collectorScreen.spawn(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
-                        mMap.addMarker(new MarkerOptions().position(spawn_3).title("Iron").icon(BitmapDescriptorFactory.fromResource(R.drawable.iron)));
-
-                        break;}
+                        getCurrentLocation();
+                        break;
+                    }
                 }
 
 
@@ -360,8 +438,19 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
                                 LatLng OTHER_LOCATION=new LatLng(OTHER_LOCATION_LAT,OTHER_LOCATION_LNG);
                                 moveCameraOther(OTHER_LOCATION, DEFAULT_ZOOM);
 
-                                mMap.addPolyline(new PolylineOptions().add(CURRENT,OTHER_LOCATION).color(Color.YELLOW).width(2f));
+                                    mMap.addPolyline(new PolylineOptions().add(CURRENT,OTHER_LOCATION).color(Color.YELLOW).width(2f));
 
+                                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                                    @Override
+                                    public boolean onMarkerClick(Marker marker) {
+                                            Toast.makeText(Mainmenu.this, marker.getTitle(), Toast.LENGTH_LONG).show();
+                                            Intent intent = new Intent(Mainmenu.this, PopupScreen.class);
+                                            intent.putExtra("OTHER_USER", TUP_OTHER);
+                                            startActivity(intent);
+                                        return true;
+                                    }
+                                });
+                                return;
                             }
                             generateCollectables();
                                 }
@@ -461,29 +550,49 @@ public class Mainmenu extends AppCompatActivity implements OnMapReadyCallback{
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                final String lat=String.valueOf(currentLocation.getLatitude());
+                final String lng=String.valueOf(currentLocation.getLongitude());
+                TUP_NOW.setUserlng(lng);
+                TUP_NOW.setUserlat(lat);
                 switch (marker.getTitle()) {
                     case "Bomb": {
                         TUP_NOW.addMaterials("Bomb ");
+                        materials=TUP_NOW.getUsermaterials();
+                        equipments=TUP_NOW.getUserequipments();
+                        UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                        mRef.setValue(userProfile);
                         marker.remove();
                         break;
                     }
                     case "Leaf": {
                         TUP_NOW.addMaterials("Leaf ");
+                        materials=TUP_NOW.getUsermaterials();
+                        equipments=TUP_NOW.getUserequipments();
+                        UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                        mRef.setValue(userProfile);
                         marker.remove();
                         break;
                     }
                     case "Animal Resource": {
                         TUP_NOW.addMaterials("AnimalResource ");
+                        materials=TUP_NOW.getUsermaterials();
+                        equipments=TUP_NOW.getUserequipments();
+                        UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                        mRef.setValue(userProfile);
                         marker.remove();
                         break;
                     }
                     case "Iron": {
                         TUP_NOW.addMaterials("Iron ");
+                        materials=TUP_NOW.getUsermaterials();
+                        equipments=TUP_NOW.getUserequipments();
+                        UserProfile userProfile=new UserProfile(TUP.getUseremail(),TUP.getUserpassword(),TUP.getUserprofilepic(),TUP.getUserstatus(),TUP.getUsername(),TUP.getUseravatarpic(),TUP.getUseravatarname(),lat,lng,materials,equipments);
+                        mRef.setValue(userProfile);
                         marker.remove();
                         break;
                     }
                 }
-                return false;
+                return true;
 
             }
         });

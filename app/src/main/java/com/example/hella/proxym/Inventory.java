@@ -1,12 +1,14 @@
 package com.example.hella.proxym;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -89,12 +91,12 @@ public class Inventory extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
-                //find problem and then resolve
-                ArrayList<String> materials = TUP.getUsermaterials();
+                ArrayList<String> materials = userProfile.getUsermaterials();
                 if (!materials.isEmpty()) {
                     for (Iterator<String> it = materials.iterator(); it.hasNext(); ) {
                         String material = it.next();
                         String material1 = material.substring(0, material.indexOf(' ')).trim();
+
                         String number = material.substring(material.indexOf(' '));
                         switch (material1) {
                             case "Bomb": {

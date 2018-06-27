@@ -2,9 +2,12 @@ package com.example.hella.proxym;
 
 
 
+import android.content.ClipData;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -29,10 +32,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 public class Social extends AppCompatActivity {
 
@@ -51,10 +59,12 @@ public class Social extends AppCompatActivity {
     private FirebaseUser user;
 
     private FirebaseRecyclerAdapter<UserProfile, ListOnlineViewHolder> adapter;
+    private FirebaseRecyclerAdapter<UserProfile, ListOnlineViewHolder> adapter2;
+    private FirebaseRecyclerAdapter<UserProfile, ListQuestsViewHolder> adapter3;
 
 
-    private RecyclerView listOnline;
-    private RecyclerView.LayoutManager layoutManager;
+    private RecyclerView listOnline, listOnlineUsers,listQuests;
+    private RecyclerView.LayoutManager layoutManager,layoutManager2,layoutManager3;
 
     private UserProfile TUP;
     private String useremail, userpassword, userprofilepic, userstatus, username, useravatarpic, useravatarname, userlat, userlng;
@@ -63,7 +73,7 @@ public class Social extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         adapter.startListening();
-
+        adapter2.startListening();
         TUP=(UserProfile) Social.this.getIntent().getExtras().getParcelable("USERPROFILE3");
     }
 
@@ -106,8 +116,20 @@ public class Social extends AppCompatActivity {
 
         listOnline = (RecyclerView) findViewById(R.id.listOnline);
         listOnline.setHasFixedSize(true);
+
+        listOnlineUsers = (RecyclerView) findViewById(R.id.listOnlineUsers);
+        listOnlineUsers.setHasFixedSize(true);
+
+        listQuests=(RecyclerView) findViewById(R.id.listQuests);
+        listQuests.setHasFixedSize(true);
+
         layoutManager = new LinearLayoutManager(Social.this);
+        layoutManager2= new LinearLayoutManager(Social.this);
+        layoutManager3= new LinearLayoutManager(Social.this);
+
         listOnline.setLayoutManager(layoutManager);
+        listOnlineUsers.setLayoutManager(layoutManager2);
+        listQuests.setLayoutManager(layoutManager3);
 
         mRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -144,6 +166,7 @@ public class Social extends AppCompatActivity {
                             currentRef.onDisconnect().removeValue();
                             counterRef.child(user.getUid()).setValue(userProfile);
                             adapter.notifyDataSetChanged();
+                            adapter2.notifyDataSetChanged();
                         }
                     }
 
@@ -198,8 +221,55 @@ public class Social extends AppCompatActivity {
                     return new ListOnlineViewHolder(view);
                 }
             };
+
+            adapter2=new FirebaseRecyclerAdapter<UserProfile, ListOnlineViewHolder>(options) {
+                @Override
+                protected void onBindViewHolder(@NonNull ListOnlineViewHolder holder, int position, @NonNull final UserProfile model) {
+                    holder.txt_email.setText(model.getUsername());
+                    holder.itemClickListener= new ItemClickListener() {
+                        @Override
+                        public void onClick(View view, int position) {
+                            if(!model.getUseremail().equals(user.getEmail())){
+                                Toast.makeText(Social.this, "Start Chat Activity", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    };
+                }
+
+                @NonNull
+                @Override
+                public ListOnlineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_layout, parent, false);
+                    return new ListOnlineViewHolder(view);
+                }
+            };
+
+
+
+            mRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    UserProfile userProfile=dataSnapshot.getValue(UserProfile.class);
+
+                    if (userProfile.getUsereaskedresources()!=null) {
+                        ArrayList<String> quests=userProfile.getUsereaskedresources();
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+
             adapter.notifyDataSetChanged();
+            adapter2.notifyDataSetChanged();
+
             listOnline.setAdapter(adapter);
+            listOnlineUsers.setAdapter(adapter2);
         } catch (Exception e) {
             Toast.makeText(Social.this, "" + e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -311,5 +381,13 @@ public class Social extends AppCompatActivity {
         return (int) Integer.parseInt(intString);
     }
 
+    public void addQuests(LinearLayout layout, ArrayList<String> quests){
+
+        if (quests!=null && !quests.isEmpty()) {
+            for (Iterator<String> it = quests.iterator(); it.hasNext(); ) {
+                String questRequest = it.next();
+            }
+        }
+    }
 }
 
